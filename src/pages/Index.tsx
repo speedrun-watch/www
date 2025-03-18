@@ -42,7 +42,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-discord-darker text-white overflow-hidden">
-      <Navbar showAddBot={true} />
+      <Navbar />
       <Hero />
       <Features />
       <Setup />
