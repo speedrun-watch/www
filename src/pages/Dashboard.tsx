@@ -1,10 +1,26 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+  SidebarMenuAction
+} from "@/components/ui/sidebar";
 import { 
   Bell, 
   Gamepad, 
@@ -43,15 +59,15 @@ import Footer from "@/components/Footer";
 const mockGuilds = {
   owner: [
     { id: "1", name: "Half-Life Speedrunners", icon: "🔧", memberCount: 350, isOfficial: true },
-    { id: "2", name: "Super Mario 64 Masters", icon: "🍄", memberCount: 1240 }
+    { id: "2", name: "Super Mario 64 Masters", icon: "🍄", memberCount: 1240, isOfficial: false }
   ],
   admin: [
     { id: "3", name: "GTA Speedrun Community", icon: "🚗", memberCount: 870, isOfficial: true },
-    { id: "4", name: "Worms Armageddon Runners", icon: "🐛", memberCount: 230 }
+    { id: "4", name: "Worms Armageddon Runners", icon: "🐛", memberCount: 230, isOfficial: false }
   ],
   member: [
-    { id: "5", name: "Minecraft Any% Guild", icon: "⛏️", memberCount: 1850 },
-    { id: "6", name: "Portal Speedrun Hub", icon: "🔵", memberCount: 420 }
+    { id: "5", name: "Minecraft Any% Guild", icon: "⛏️", memberCount: 1850, isOfficial: false },
+    { id: "6", name: "Portal Speedrun Hub", icon: "🔵", memberCount: 420, isOfficial: false }
   ]
 };
 
@@ -168,21 +184,20 @@ const popularGames = [
 
 // This is a placeholder Dashboard, you'll expand this with actual functionality later
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("home");
-  const [activeGuildCategory, setActiveGuildCategory] = useState("all");
   const [selectedGuildId, setSelectedGuildId] = useState<string | null>(null);
   const [gameSearchTerm, setGameSearchTerm] = useState("");
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [editingGameSettings, setEditingGameSettings] = useState<{channelId: string, gameId: string} | null>(null);
   const [showAddModerator, setShowAddModerator] = useState(false);
   const [notificationCopied, setNotificationCopied] = useState(false);
+  const [showAddGuild, setShowAddGuild] = useState(false);
 
-  // Combine all guilds for the "all" category
-  const allGuilds = [
-    ...mockGuilds.owner,
-    ...mockGuilds.admin,
-    ...mockGuilds.member
-  ];
+  // Combine all guilds for displaying in sidebar
+  const allGuilds = {
+    owner: mockGuilds.owner,
+    admin: mockGuilds.admin,
+    member: mockGuilds.member
+  };
 
   // Filter games based on search term
   const filteredGames = mockAvailableGames.filter(game => 
@@ -246,6 +261,34 @@ const Dashboard = () => {
       });
   };
 
+  // Check if user is owner or admin of selected guild
+  const isOwnerOrAdmin = (guildId: string) => {
+    return mockGuilds.owner.some(g => g.id === guildId) || mockGuilds.admin.some(g => g.id === guildId);
+  };
+
+  // Check if user is owner of selected guild
+  const isOwner = (guildId: string) => {
+    return mockGuilds.owner.some(g => g.id === guildId);
+  };
+
+  // Get the current guild type (owner, admin, member)
+  const getGuildType = (guildId: string) => {
+    if (mockGuilds.owner.some(g => g.id === guildId)) return "owner";
+    if (mockGuilds.admin.some(g => g.id === guildId)) return "admin";
+    return "member";
+  };
+
+  // Get guild details by ID
+  const getGuildById = (guildId: string) => {
+    const owner = mockGuilds.owner.find(g => g.id === guildId);
+    if (owner) return owner;
+    
+    const admin = mockGuilds.admin.find(g => g.id === guildId);
+    if (admin) return admin;
+    
+    return mockGuilds.member.find(g => g.id === guildId);
+  };
+
   return (
     <div className="min-h-screen bg-discord-darker text-white">
       {/* Header */}
@@ -277,290 +320,273 @@ const Dashboard = () => {
         </div>
       </header>
       
-      {/* Main Content */}
-      <div className="container mx-auto px-4 md:px-6 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="w-full md:w-64 glass rounded-lg p-4">
-            <nav className="space-y-2">
-              <Button
-                variant="ghost"
-                className={`w-full justify-start ${
-                  activeTab === "home" 
-                    ? "bg-discord-blurple text-white" 
-                    : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                }`}
-                onClick={() => setActiveTab("home")}
-              >
-                <Home className="mr-2 h-5 w-5" />
-                Dashboard
-              </Button>
-              <Button
-                variant="ghost"
-                className={`w-full justify-start ${
-                  activeTab === "guilds" 
-                    ? "bg-discord-blurple text-white" 
-                    : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                }`}
-                onClick={() => setActiveTab("guilds")}
-              >
-                <Server className="mr-2 h-5 w-5" />
-                Discord Guilds
-              </Button>
-              <Button
-                variant="ghost"
-                className={`w-full justify-start ${
-                  activeTab === "games" 
-                    ? "bg-discord-blurple text-white" 
-                    : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                }`}
-                onClick={() => setActiveTab("games")}
-              >
-                <Gamepad className="mr-2 h-5 w-5" />
-                Games
-              </Button>
-              <Button
-                variant="ghost"
-                className={`w-full justify-start ${
-                  activeTab === "settings" 
-                    ? "bg-discord-blurple text-white" 
-                    : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                }`}
-                onClick={() => setActiveTab("settings")}
-              >
-                <Settings className="mr-2 h-5 w-5" />
-                Settings
-              </Button>
-            </nav>
-
-            {/* Resources Section */}
-            <div className="mt-8 pt-6 border-t border-gray-800">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">Resources</h3>
-              <div className="space-y-2">
-                <a href="https://speedrun.com" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <ExternalLink className="mr-2 h-4 w-4 text-gray-400" />
+      {/* Main Content with Sidebar */}
+      <SidebarProvider>
+        <div className="w-full flex">
+          <Sidebar variant="inset" side="left">
+            <SidebarHeader>
+              <div className="flex items-center justify-between p-2">
+                <div className="flex items-center">
+                  <Bell className="w-5 h-5 text-discord-blurple mr-2" />
+                  <span className="font-medium">speedrun.bot</span>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="rounded-full p-0 w-8 h-8 hover:bg-discord-dark/50" 
+                  onClick={() => setShowAddGuild(!showAddGuild)}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </SidebarHeader>
+            
+            <SidebarContent>
+              {/* Settings Section */}
+              <SidebarGroup>
+                <SidebarGroupLabel>Settings</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton tooltip="User Settings">
+                        <User className="w-4 h-4 text-gray-400" />
+                        <span>User Settings</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              {/* Owner Guilds */}
+              {allGuilds.owner.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel>
+                    <Shield className="w-3 h-3 mr-1" />
+                    Owner Guilds
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {allGuilds.owner.map(guild => (
+                        <SidebarMenuItem key={guild.id}>
+                          <SidebarMenuButton 
+                            isActive={selectedGuildId === guild.id}
+                            onClick={() => setSelectedGuildId(guild.id)}
+                            tooltip={guild.name}
+                          >
+                            <div className="flex items-center justify-center text-lg w-4 h-4">
+                              {guild.icon}
+                            </div>
+                            <span>{guild.name}</span>
+                            {guild.isOfficial && (
+                              <Badge className="ml-auto bg-green-600 hover:bg-green-700 text-xs py-0 h-5">
+                                <Shield className="w-3 h-3 mr-1" />
+                                Official
+                              </Badge>
+                            )}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              )}
+              
+              {/* Admin Guilds */}
+              {allGuilds.admin.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel>
+                    <Settings className="w-3 h-3 mr-1" />
+                    Admin Guilds
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {allGuilds.admin.map(guild => (
+                        <SidebarMenuItem key={guild.id}>
+                          <SidebarMenuButton 
+                            isActive={selectedGuildId === guild.id}
+                            onClick={() => setSelectedGuildId(guild.id)}
+                            tooltip={guild.name}
+                          >
+                            <div className="flex items-center justify-center text-lg w-4 h-4">
+                              {guild.icon}
+                            </div>
+                            <span>{guild.name}</span>
+                            {guild.isOfficial && (
+                              <Badge className="ml-auto bg-green-600 hover:bg-green-700 text-xs py-0 h-5">
+                                <Shield className="w-3 h-3 mr-1" />
+                                Official
+                              </Badge>
+                            )}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              )}
+              
+              {/* Member Guilds */}
+              {allGuilds.member.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel>
+                    <Users className="w-3 h-3 mr-1" />
+                    Member Guilds
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {allGuilds.member.map(guild => (
+                        <SidebarMenuItem key={guild.id}>
+                          <SidebarMenuButton 
+                            isActive={selectedGuildId === guild.id}
+                            onClick={() => setSelectedGuildId(guild.id)}
+                            tooltip={guild.name}
+                          >
+                            <div className="flex items-center justify-center text-lg w-4 h-4">
+                              {guild.icon}
+                            </div>
+                            <span>{guild.name}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              )}
+            </SidebarContent>
+            
+            <SidebarFooter>
+              <div className="p-2 text-center text-xs text-gray-400">
+                <a href="https://speedrun.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center hover:text-gray-300">
+                  <ExternalLink className="w-3 h-3 mr-1" />
                   speedrun.com
                 </a>
-                <a href="#" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <MessageSquare className="mr-2 h-4 w-4 text-gray-400" />
-                  Support Server
-                </a>
-                <a href="https://github.com/speedrunbot/docs" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <Github className="mr-2 h-4 w-4 text-gray-400" />
-                  Documentation
-                </a>
-                <a href="#" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <BookOpen className="mr-2 h-4 w-4 text-gray-400" />
-                  Guides
-                </a>
               </div>
-            </div>
-
-            {/* Ideas & Suggestions */}
-            <div className="mt-6 pt-6 border-t border-gray-800">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">Ideas & Suggestions</h3>
-              <div className="space-y-2">
-                <a href="#" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" />
-                  Feature Requests
-                </a>
-                <a href="#" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <BarChart className="mr-2 h-4 w-4 text-blue-400" />
-                  Upcoming Features
-                </a>
-                <a href="#" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <GitPullRequest className="mr-2 h-4 w-4 text-purple-400" />
-                  Contribute
-                </a>
-                <a href="#" className="flex items-center text-sm text-gray-300 hover:text-white">
-                  <Heart className="mr-2 h-4 w-4 text-red-400" />
-                  Support Development
-                </a>
-              </div>
-            </div>
-          </div>
+            </SidebarFooter>
+          </Sidebar>
           
           {/* Main Content Area */}
-          <div className="flex-1 glass rounded-lg p-6">
-            {activeTab === "home" && (
+          <div className="flex-1 mx-4 my-4 glass rounded-lg p-6">
+            {/* Add Guild View */}
+            {showAddGuild && (
               <div>
-                <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-                <div className="glass border-0 p-12 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Gamepad className="w-16 h-16 text-discord-blurple mx-auto mb-4 opacity-40" />
-                    <h3 className="text-xl font-semibold mb-2">Welcome to speedrun.bot</h3>
-                    <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                      Manage your Discord guilds and configure speedrun notifications here.
+                <div className="flex items-center mb-6">
+                  <Button 
+                    variant="ghost" 
+                    className="mr-4 hover:bg-discord-dark/50"
+                    onClick={() => setShowAddGuild(false)}
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </Button>
+                  <h1 className="text-2xl font-bold">Add speedrun.bot to a Guild</h1>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="glass p-6 rounded-lg">
+                    <h2 className="text-xl font-semibold mb-3">Invite the Bot</h2>
+                    <p className="text-gray-300 mb-4">
+                      To add speedrun.bot to your Discord guild, you need to have "Manage Server" permissions.
                     </p>
-                    <Button 
-                      className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                      onClick={() => setActiveTab("guilds")}
-                    >
-                      <Server className="mr-2 h-4 w-4" />
-                      Manage Guilds
+                    
+                    <div className="space-y-4">
+                      <Button 
+                        size="lg" 
+                        className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
+                      >
+                        <Plus className="mr-2 w-4 h-4" />
+                        Add to Discord Guild
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Share Section */}
+                  <div className="glass p-6 rounded-lg">
+                    <h2 className="text-xl font-semibold mb-3">Share speedrun.bot</h2>
+                    <p className="text-gray-300 mb-4">
+                      Share speedrun.bot with your friends and communities to help spread the word about this free Discord bot.
+                    </p>
+                    
+                    <div className="bg-discord-dark/50 p-4 rounded-md mb-4">
+                      <p className="text-sm text-gray-300 mb-3">
+                        Check out speedrun.bot! It's a great Discord bot for tracking speedruns from speedrun.com. Add it to your server: https://speedrun.bot/invite
+                      </p>
+                      <Button 
+                        onClick={handleCopyShareText}
+                        className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
+                      >
+                        <Copy className="mr-2 w-4 h-4" />
+                        {notificationCopied ? "Copied!" : "Copy to Clipboard"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* User Settings View */}
+            {!selectedGuildId && !showAddGuild && (
+              <div>
+                <h1 className="text-2xl font-bold mb-6">User Settings</h1>
+                <div className="glass p-6 rounded-lg">
+                  <h2 className="text-xl font-semibold mb-3">Connect Your Account</h2>
+                  <p className="text-gray-300 mb-4">
+                    Connect your speedrun.com account to allow the bot to mention you on Discord when your runs are detected.
+                  </p>
+                  
+                  <div className="bg-discord-dark/50 p-4 rounded-md border border-discord-blurple/30 mb-4">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 bg-yellow-500/20 rounded p-2">
+                        <Bell className="h-5 w-5 text-yellow-400" />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-gray-300 text-sm">
+                          <strong>Privacy Note:</strong> Temporarily pasting your speedrun.com API key will allow the bot to verify your identity and @-mention you on Discord when your runs are detected. Your API key is only used for verification and is not stored on our servers.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        speedrun.com Username
+                      </label>
+                      <input 
+                        type="text" 
+                        className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                        placeholder="Your speedrun.com username"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        speedrun.com API Key (temporary verification only)
+                      </label>
+                      <input 
+                        type="password" 
+                        className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                        placeholder="Paste your API key for verification"
+                      />
+                      <p className="mt-1 text-sm text-gray-400">
+                        Find your API key in your speedrun.com account settings.
+                      </p>
+                    </div>
+                    
+                    <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
+                      <UserCheck className="mr-2 w-4 h-4" />
+                      Verify Identity
                     </Button>
                   </div>
                 </div>
               </div>
             )}
             
-            {activeTab === "guilds" && !selectedGuildId && (
-              <div>
-                <h1 className="text-2xl font-bold mb-6">Discord Guilds</h1>
-                
-                <Tabs defaultValue={activeGuildCategory} onValueChange={setActiveGuildCategory} className="mb-6">
-                  <TabsList className="bg-discord-dark">
-                    <TabsTrigger value="all" className="data-[state=active]:bg-discord-blurple data-[state=active]:text-white">
-                      All Guilds ({allGuilds.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="owner" className="data-[state=active]:bg-discord-blurple data-[state=active]:text-white">
-                      <Shield className="mr-2 h-4 w-4" />
-                      Owner ({mockGuilds.owner.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="admin" className="data-[state=active]:bg-discord-blurple data-[state=active]:text-white">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Admin ({mockGuilds.admin.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="member" className="data-[state=active]:bg-discord-blurple data-[state=active]:text-white">
-                      <Users className="mr-2 h-4 w-4" />
-                      Member ({mockGuilds.member.length})
-                    </TabsTrigger>
-                  </TabsList>
-                
-                  <TabsContent value="all" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {allGuilds.map(guild => (
-                        <div key={guild.id} className="bg-discord-dark rounded-lg p-4 hover:bg-discord-dark/80 transition-colors">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-discord-blurple/20 flex items-center justify-center text-2xl">
-                              {guild.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center">
-                                <h3 className="text-white font-medium truncate">{guild.name}</h3>
-                                {guild.isOfficial && (
-                                  <Badge className="ml-2 bg-green-600 hover:bg-green-700">
-                                    <Shield className="w-3 h-3 mr-1" />
-                                    Official
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-gray-400 text-sm">{guild.memberCount} members</p>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                              onClick={() => setSelectedGuildId(guild.id)}
-                            >
-                              Manage
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                
-                  <TabsContent value="owner" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {mockGuilds.owner.map(guild => (
-                        <div key={guild.id} className="bg-discord-dark rounded-lg p-4 hover:bg-discord-dark/80 transition-colors">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-discord-blurple/20 flex items-center justify-center text-2xl">
-                              {guild.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center">
-                                <h3 className="text-white font-medium truncate">{guild.name}</h3>
-                                {guild.isOfficial && (
-                                  <Badge className="ml-2 bg-green-600 hover:bg-green-700">
-                                    <Shield className="w-3 h-3 mr-1" />
-                                    Official
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-gray-400 text-sm">{guild.memberCount} members</p>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                              onClick={() => setSelectedGuildId(guild.id)}
-                            >
-                              Manage
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                
-                  {/* Admin and Member tabs - same pattern as the other tabs but with different data */}
-                  <TabsContent value="admin" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {mockGuilds.admin.map(guild => (
-                        <div key={guild.id} className="bg-discord-dark rounded-lg p-4 hover:bg-discord-dark/80 transition-colors">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-discord-blurple/20 flex items-center justify-center text-2xl">
-                              {guild.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-white font-medium truncate">{guild.name}</h3>
-                              <p className="text-gray-400 text-sm">{guild.memberCount} members</p>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                              onClick={() => setSelectedGuildId(guild.id)}
-                            >
-                              Manage
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                
-                  <TabsContent value="member" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {mockGuilds.member.map(guild => (
-                        <div key={guild.id} className="bg-discord-dark rounded-lg p-4 hover:bg-discord-dark/80 transition-colors">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-discord-blurple/20 flex items-center justify-center text-2xl">
-                              {guild.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-white font-medium truncate">{guild.name}</h3>
-                              <p className="text-gray-400 text-sm">{guild.memberCount} members</p>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                              onClick={() => setSelectedGuildId(guild.id)}
-                            >
-                              Manage
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            )}
-            
-            {activeTab === "guilds" && selectedGuildId && (
+            {/* Guild Management View */}
+            {selectedGuildId && !showAddGuild && (
               <div>
                 <div className="flex items-center mb-6">
-                  <Button 
-                    variant="ghost" 
-                    className="mr-4 hover:bg-discord-dark/50"
-                    onClick={handleBackToGuilds}
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                  
                   <h1 className="text-2xl font-bold flex items-center">
-                    {allGuilds.find(g => g.id === selectedGuildId)?.name}
-                    {allGuilds.find(g => g.id === selectedGuildId)?.isOfficial && (
+                    {getGuildById(selectedGuildId)?.name}
+                    {getGuildById(selectedGuildId)?.isOfficial && (
                       <Badge className="ml-3 bg-green-600 hover:bg-green-700 py-1">
                         <Shield className="w-3 h-3 mr-1" />
                         Official Guild
@@ -569,83 +595,90 @@ const Dashboard = () => {
                   </h1>
                 </div>
                 
-                {/* Moderators Section */}
-                <div className="bg-discord-dark rounded-lg p-4 mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold">Moderators</h2>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="border-discord-blurple text-discord-blurple hover:bg-discord-blurple hover:text-white"
-                      onClick={() => setShowAddModerator(!showAddModerator)}
-                    >
-                      {showAddModerator ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-                      {showAddModerator ? "Cancel" : "Add Moderator"}
-                    </Button>
-                  </div>
-                  
-                  {showAddModerator && (
-                    <div className="bg-discord-darker p-4 rounded-md mb-4">
-                      <div className="mb-4">
-                        <p className="text-sm text-gray-300 mb-2">
-                          Moderators have the same abilities as you for managing game notifications, 
-                          but cannot remove you (the owner) or remove the bot entirely from the guild.
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <div className="flex-1">
-                          <select className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none">
-                            <option value="">Select type...</option>
-                            <option value="user">Discord User</option>
-                            <option value="role">Discord Role</option>
-                          </select>
-                        </div>
-                        <div className="flex-1">
-                          <input 
-                            type="text" 
-                            placeholder="Search users or roles..."
-                            className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
-                          />
-                        </div>
-                        <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
-                          Add
+                {/* Moderators Section - Only visible to owners and admins */}
+                {isOwnerOrAdmin(selectedGuildId) && (
+                  <div className="bg-discord-dark rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold">Moderators</h2>
+                      {isOwner(selectedGuildId) && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-discord-blurple text-discord-blurple hover:bg-discord-blurple hover:text-white"
+                          onClick={() => setShowAddModerator(!showAddModerator)}
+                        >
+                          {showAddModerator ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+                          {showAddModerator ? "Cancel" : "Add Moderator"}
                         </Button>
-                      </div>
+                      )}
                     </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    {mockModerators[selectedGuildId as keyof typeof mockModerators]?.map(mod => (
-                      <div key={mod.id} className="flex items-center justify-between bg-discord-darker p-2 rounded-md">
-                        <div className="flex items-center">
-                          {mod.type === "user" ? (
-                            <>
-                              <Avatar className="w-6 h-6 mr-2">
-                                <AvatarFallback className="bg-discord-blurple/60 text-xs">
-                                  {mod.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{mod.name}</span>
-                            </>
-                          ) : (
-                            <>
-                              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: mod.color }}></div>
-                              <span className="font-medium">@{mod.name}</span>
-                            </>
+                    
+                    {showAddModerator && isOwner(selectedGuildId) && (
+                      <div className="bg-discord-darker p-4 rounded-md mb-4">
+                        <div className="mb-4">
+                          <p className="text-sm text-gray-300 mb-2">
+                            Moderators have the same abilities as you for managing game notifications, 
+                            but cannot remove you (the owner) or remove the bot entirely from the guild.
+                          </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                          <div className="flex-1">
+                            <select className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none">
+                              <option value="">Select type...</option>
+                              <option value="user">Discord User</option>
+                              <option value="role">Discord Role</option>
+                            </select>
+                          </div>
+                          <div className="flex-1">
+                            <input 
+                              type="text" 
+                              placeholder="Search users or roles..."
+                              className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                            />
+                          </div>
+                          <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="space-y-2">
+                      {mockModerators[selectedGuildId as keyof typeof mockModerators]?.map(mod => (
+                        <div key={mod.id} className="flex items-center justify-between bg-discord-darker p-2 rounded-md">
+                          <div className="flex items-center">
+                            {mod.type === "user" ? (
+                              <>
+                                <Avatar className="w-6 h-6 mr-2">
+                                  <AvatarFallback className="bg-discord-blurple/60 text-xs">
+                                    {mod.name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span>{mod.name}</span>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: mod.color }}></div>
+                                <span className="font-medium">@{mod.name}</span>
+                              </>
+                            )}
+                          </div>
+                          {isOwner(selectedGuildId) && (
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-500">
+                              <X className="h-4 w-4" />
+                            </Button>
                           )}
                         </div>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-500">
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {(!mockModerators[selectedGuildId as keyof typeof mockModerators] || 
-                     mockModerators[selectedGuildId as keyof typeof mockModerators].length === 0) && (
-                      <p className="text-gray-400 text-sm italic">No moderators added yet</p>
-                    )}
+                      ))}
+                      {(!mockModerators[selectedGuildId as keyof typeof mockModerators] || 
+                       mockModerators[selectedGuildId as keyof typeof mockModerators].length === 0) && (
+                        <p className="text-gray-400 text-sm italic">No moderators added yet</p>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
                 
+                {/* Notification Channels */}
                 <div className="bg-discord-dark rounded-lg p-4 mb-6">
                   <h2 className="text-xl font-semibold mb-4">Notification Channels</h2>
                   <div className="space-y-4">
@@ -656,7 +689,7 @@ const Dashboard = () => {
                             <MessageSquare className="w-5 h-5 mr-2 text-discord-blurple" />
                             #{channel.name}
                           </h3>
-                          {activeChannelId !== channel.id && (
+                          {activeChannelId !== channel.id && isOwnerOrAdmin(selectedGuildId) && (
                             <Button 
                               size="sm" 
                               variant="outline" 
@@ -669,7 +702,7 @@ const Dashboard = () => {
                           )}
                         </div>
                         
-                        {activeChannelId === channel.id && (
+                        {activeChannelId === channel.id && isOwnerOrAdmin(selectedGuildId) && (
                           <div className="mb-4 bg-discord-dark/50 p-3 rounded-md">
                             <div className="flex items-center mb-2">
                               <input 
@@ -725,38 +758,42 @@ const Dashboard = () => {
                                       <span>Last: {formatDate(game.lastNotification)}</span>
                                     </div>
                                     
-                                    {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id ? (
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost" 
-                                        className="text-gray-400 hover:text-white h-8 p-0 w-8" 
-                                        onClick={() => setEditingGameSettings(null)}
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </Button>
-                                    ) : (
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost" 
-                                        className="text-gray-400 hover:text-white h-8 p-0 w-8" 
-                                        onClick={() => setEditingGameSettings({channelId: channel.id, gameId: game.id})}
-                                      >
-                                        <Settings className="w-4 h-4" />
-                                      </Button>
+                                    {isOwnerOrAdmin(selectedGuildId) && (
+                                      <>
+                                        {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id ? (
+                                          <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className="text-gray-400 hover:text-white h-8 p-0 w-8" 
+                                            onClick={() => setEditingGameSettings(null)}
+                                          >
+                                            <X className="w-4 h-4" />
+                                          </Button>
+                                        ) : (
+                                          <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className="text-gray-400 hover:text-white h-8 p-0 w-8" 
+                                            onClick={() => setEditingGameSettings({channelId: channel.id, gameId: game.id})}
+                                          >
+                                            <Settings className="w-4 h-4" />
+                                          </Button>
+                                        )}
+                                        
+                                        <Button 
+                                          size="sm" 
+                                          variant="ghost" 
+                                          className="text-gray-400 hover:text-red-500 h-8 p-0 w-8" 
+                                          onClick={() => handleUnlinkGame(channel.id, game.id)}
+                                        >
+                                          <X className="w-4 h-4" />
+                                        </Button>
+                                      </>
                                     )}
-                                    
-                                    <Button 
-                                      size="sm" 
-                                      variant="ghost" 
-                                      className="text-gray-400 hover:text-red-500 h-8 p-0 w-8" 
-                                      onClick={() => handleUnlinkGame(channel.id, game.id)}
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </Button>
                                   </div>
                                 </div>
                                 
-                                {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id && (
+                                {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id && isOwnerOrAdmin(selectedGuildId) && (
                                   <div className="mt-2 p-2 bg-discord-dark/50 rounded-md">
                                     <h4 className="text-sm font-medium mb-2">Notification Settings</h4>
                                     <div className="grid grid-cols-2 gap-2">
@@ -857,111 +894,9 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-            
-            {activeTab === "games" && (
-              <div>
-                <h1 className="text-2xl font-bold mb-6">Game Tracking</h1>
-                <div className="glass border-0 p-12 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Gamepad className="w-16 h-16 text-discord-blurple mx-auto mb-4 opacity-40" />
-                    <h3 className="text-xl font-semibold mb-2">Select a Guild First</h3>
-                    <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                      To configure game tracking, first select a guild from the Discord Guilds section.
-                    </p>
-                    <Button 
-                      className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                      onClick={() => setActiveTab("guilds")}
-                    >
-                      <Server className="mr-2 h-4 w-4" />
-                      Go to Guilds
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {activeTab === "settings" && (
-              <div>
-                <h1 className="text-2xl font-bold mb-6">Settings</h1>
-                <div className="space-y-6">
-                  <div className="glass p-6 rounded-lg">
-                    <h2 className="text-xl font-semibold mb-3">User Settings</h2>
-                    <p className="text-gray-300 mb-4">
-                      Connect your speedrun.com account to allow the bot to mention you on Discord when your runs are detected.
-                    </p>
-                    
-                    <div className="bg-discord-dark/50 p-4 rounded-md border border-discord-blurple/30 mb-4">
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0 bg-yellow-500/20 rounded p-2">
-                          <Bell className="h-5 w-5 text-yellow-400" />
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-gray-300 text-sm">
-                            <strong>Privacy Note:</strong> Temporarily pasting your speedrun.com API key will allow the bot to verify your identity and @-mention you on Discord when your runs are detected. Your API key is only used for verification and is not stored on our servers.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">
-                          speedrun.com Username
-                        </label>
-                        <input 
-                          type="text" 
-                          className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
-                          placeholder="Your speedrun.com username"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">
-                          speedrun.com API Key (temporary verification only)
-                        </label>
-                        <input 
-                          type="password" 
-                          className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
-                          placeholder="Paste your API key for verification"
-                        />
-                        <p className="mt-1 text-sm text-gray-400">
-                          Find your API key in your speedrun.com account settings.
-                        </p>
-                      </div>
-                      
-                      <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
-                        <UserCheck className="mr-2 w-4 h-4" />
-                        Verify Identity
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Share Section */}
-                  <div className="glass p-6 rounded-lg">
-                    <h2 className="text-xl font-semibold mb-3">Share speedrun.bot</h2>
-                    <p className="text-gray-300 mb-4">
-                      Share speedrun.bot with your friends and communities to help spread the word about this free Discord bot.
-                    </p>
-                    
-                    <div className="bg-discord-dark/50 p-4 rounded-md mb-4">
-                      <p className="text-sm text-gray-300 mb-3">
-                        Check out speedrun.bot! It's a great Discord bot for tracking speedruns from speedrun.com. Add it to your server: https://speedrun.bot/invite
-                      </p>
-                      <Button 
-                        onClick={handleCopyShareText}
-                        className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                      >
-                        <Copy className="mr-2 w-4 h-4" />
-                        {notificationCopied ? "Copied!" : "Copy to Clipboard"}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
-      </div>
+      </SidebarProvider>
       
       <Footer />
     </div>
