@@ -3,10 +3,11 @@ import { ReactNode } from 'react';
 import { SidebarProvider, SidebarRail, SidebarInset } from "@/components/ui/sidebar";
 import DashboardSidebar from './DashboardSidebar';
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link } from 'react-router-dom';
+import Footer from '@/components/Footer';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -21,20 +22,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-discord-dark text-gray-200">
         <DashboardSidebar />
         <SidebarRail />
 
         <SidebarInset className="flex flex-col">
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
-            <Button variant="ghost" size="icon" className="md:hidden">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-discord-darker bg-discord-dark/90 backdrop-blur-sm px-6">
+            <Button variant="ghost" size="icon" className="md:hidden text-gray-300 hover:text-white">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
             
             <div className="flex-1">
-              <Link to="/" className="text-lg font-semibold tracking-tight">
-                speedrun.bot
+              <Link to="/" className="flex items-center space-x-2">
+                <Bell className="w-6 h-6 text-discord-blurple/90" />
+                <span className="text-xl font-bold bg-gradient-to-r from-discord-blurple/90 to-discord-fuchsia/80 bg-clip-text text-transparent">
+                  speedrun.bot
+                </span>
               </Link>
             </div>
 
@@ -47,13 +51,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-discord-dark border-discord-darker text-gray-200">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                <DropdownMenuSeparator className="bg-discord-darker/70" />
+                <DropdownMenuItem asChild className="focus:bg-discord-blurple/20 focus:text-white">
                   <Link to="/dashboard/user-settings">User Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="focus:bg-discord-blurple/20 focus:text-white">
                   <Link to="/logout">Logout</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -64,9 +68,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             {children}
           </main>
           
-          <footer className="border-t py-4 px-6 text-center text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} speedrun.bot. All rights reserved.</p>
-          </footer>
+          <Footer />
         </SidebarInset>
       </div>
     </SidebarProvider>

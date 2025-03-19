@@ -9,7 +9,8 @@ import {
   Share, 
   Bot,
   ChevronDown,
-  Globe
+  Globe,
+  GameController
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -141,10 +142,10 @@ const DashboardSidebar = () => {
   const memberGuilds = mockGuilds.filter(guild => guild.role === "member");
 
   return (
-    <Sidebar className="border-r border-border bg-background" collapsible="icon">
+    <Sidebar className="border-r border-discord-darker bg-discord-dark/70 text-gray-300 min-w-[260px]" collapsible="icon">
       <SidebarContent className="pt-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 font-semibold text-base mb-1">
+          <SidebarGroupLabel className="px-3 font-semibold text-base mb-1 text-gray-200">
             <div className="flex items-center gap-2">
               Add Guild
             </div>
@@ -155,8 +156,9 @@ const DashboardSidebar = () => {
                 <SidebarMenuButton
                   tooltip="Share Bot"
                   onClick={() => navigate("/dashboard/share-bot")}
+                  className="hover:bg-discord-blurple/20"
                 >
-                  <Share className="text-primary" />
+                  <Share className="text-discord-blurple" />
                   <span>Share Bot</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -164,8 +166,9 @@ const DashboardSidebar = () => {
                 <SidebarMenuButton
                   tooltip="Add Bot to Guild"
                   onClick={() => navigate("/dashboard/add-bot")}
+                  className="hover:bg-discord-blurple/20"
                 >
-                  <Bot className="text-primary" />
+                  <Bot className="text-discord-blurple" />
                   <span>Add Bot to Guild</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -175,9 +178,9 @@ const DashboardSidebar = () => {
 
         {ownerGuilds.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel className="px-3 font-semibold text-base mb-1">
+            <SidebarGroupLabel className="px-3 font-semibold text-base mb-1 text-gray-200">
               <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
+                <Shield className="h-4 w-4 text-discord-blurple/90" />
                 Owner Guilds
               </div>
             </SidebarGroupLabel>
@@ -188,9 +191,10 @@ const DashboardSidebar = () => {
                     <SidebarMenuButton
                       tooltip={guild.name}
                       onClick={() => navigate(`/dashboard/guild/${guild.id}`)}
+                      className="hover:bg-discord-blurple/20"
                     >
                       <div className="flex items-center gap-2 w-full">
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-7 w-7">
                           <AvatarImage src={guild.icon} alt={guild.name} />
                           <AvatarFallback>{guild.name.charAt(0)}</AvatarFallback>
                         </Avatar>
@@ -201,7 +205,7 @@ const DashboardSidebar = () => {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Globe className="ml-1.5 h-3.5 w-3.5 text-primary/80" />
+                                    <Globe className="ml-1.5 h-3.5 w-3.5 text-discord-blurple/80" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     Official Guild
@@ -213,6 +217,13 @@ const DashboardSidebar = () => {
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             <Users className="h-3 w-3" /> 
                             <span>{guild.memberCount.toLocaleString()}</span>
+                            {guild.games.length > 0 && (
+                              <>
+                                <span className="mx-1">•</span>
+                                <GameController className="h-3 w-3" />
+                                <span>{guild.games.length}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -226,9 +237,9 @@ const DashboardSidebar = () => {
 
         {moderatorGuilds.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel className="px-3 font-semibold text-base mb-1">
+            <SidebarGroupLabel className="px-3 font-semibold text-base mb-1 text-gray-200">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4 text-discord-blurple/90" />
                 Moderator Guilds
               </div>
             </SidebarGroupLabel>
@@ -239,9 +250,10 @@ const DashboardSidebar = () => {
                     <SidebarMenuButton
                       tooltip={guild.name}
                       onClick={() => navigate(`/dashboard/guild/${guild.id}`)}
+                      className="hover:bg-discord-blurple/20"
                     >
                       <div className="flex items-center gap-2 w-full">
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-7 w-7">
                           <AvatarImage src={guild.icon} alt={guild.name} />
                           <AvatarFallback>{guild.name.charAt(0)}</AvatarFallback>
                         </Avatar>
@@ -252,7 +264,7 @@ const DashboardSidebar = () => {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Globe className="ml-1.5 h-3.5 w-3.5 text-primary/80" />
+                                    <Globe className="ml-1.5 h-3.5 w-3.5 text-discord-blurple/80" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     Official Guild
@@ -264,6 +276,13 @@ const DashboardSidebar = () => {
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             <Users className="h-3 w-3" /> 
                             <span>{guild.memberCount.toLocaleString()}</span>
+                            {guild.games.length > 0 && (
+                              <>
+                                <span className="mx-1">•</span>
+                                <GameController className="h-3 w-3" />
+                                <span>{guild.games.length}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -277,9 +296,9 @@ const DashboardSidebar = () => {
 
         {memberGuilds.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel className="px-3 font-semibold text-base mb-1">
+            <SidebarGroupLabel className="px-3 font-semibold text-base mb-1 text-gray-200">
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4 text-discord-blurple/90" />
                 Member Guilds
               </div>
             </SidebarGroupLabel>
@@ -290,9 +309,10 @@ const DashboardSidebar = () => {
                     <SidebarMenuButton
                       tooltip={guild.name}
                       onClick={() => navigate(`/dashboard/guild/${guild.id}`)}
+                      className="hover:bg-discord-blurple/20"
                     >
                       <div className="flex items-center gap-2 w-full">
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-7 w-7">
                           <AvatarImage src={guild.icon} alt={guild.name} />
                           <AvatarFallback>{guild.name.charAt(0)}</AvatarFallback>
                         </Avatar>
@@ -303,7 +323,7 @@ const DashboardSidebar = () => {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Globe className="ml-1.5 h-3.5 w-3.5 text-primary/80" />
+                                    <Globe className="ml-1.5 h-3.5 w-3.5 text-discord-blurple/80" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     Official Guild
@@ -315,6 +335,13 @@ const DashboardSidebar = () => {
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             <Users className="h-3 w-3" /> 
                             <span>{guild.memberCount.toLocaleString()}</span>
+                            {guild.games.length > 0 && (
+                              <>
+                                <span className="mx-1">•</span>
+                                <GameController className="h-3 w-3" />
+                                <span>{guild.games.length}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -327,7 +354,7 @@ const DashboardSidebar = () => {
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 font-semibold text-base mb-1">
+          <SidebarGroupLabel className="px-3 font-semibold text-base mb-1 text-gray-200">
             Settings
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -336,8 +363,9 @@ const DashboardSidebar = () => {
                 <SidebarMenuButton
                   tooltip="User Settings"
                   onClick={() => navigate("/dashboard/user-settings")}
+                  className="hover:bg-discord-blurple/20"
                 >
-                  <User className="text-primary" />
+                  <User className="text-discord-blurple" />
                   <span>User Settings</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
