@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,9 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
-  SidebarMenuAction
+  SidebarMenuAction,
+  SidebarRail,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { 
   Bell, 
@@ -55,23 +58,33 @@ import {
 } from "lucide-react";
 import Footer from "@/components/Footer";
 
-// Mock data for guild listings
+// Expanded mock data for guild listings
 const mockGuilds = {
   owner: [
     { id: "1", name: "Half-Life Speedrunners", icon: "🔧", memberCount: 350, isOfficial: true },
-    { id: "2", name: "Super Mario 64 Masters", icon: "🍄", memberCount: 1240, isOfficial: false }
+    { id: "2", name: "Super Mario 64 Masters", icon: "🍄", memberCount: 1240, isOfficial: false },
+    { id: "7", name: "Celeste Dash Club", icon: "🏔️", memberCount: 650, isOfficial: true },
+    { id: "8", name: "Hades Speedrun Society", icon: "🔥", memberCount: 480, isOfficial: false }
   ],
   admin: [
     { id: "3", name: "GTA Speedrun Community", icon: "🚗", memberCount: 870, isOfficial: true },
-    { id: "4", name: "Worms Armageddon Runners", icon: "🐛", memberCount: 230, isOfficial: false }
+    { id: "4", name: "Worms Armageddon Runners", icon: "🐛", memberCount: 230, isOfficial: false },
+    { id: "9", name: "Hollow Knight Guild", icon: "🐞", memberCount: 1200, isOfficial: true },
+    { id: "10", name: "Minecraft RTAs", icon: "⛏️", memberCount: 2500, isOfficial: false }
   ],
   member: [
     { id: "5", name: "Minecraft Any% Guild", icon: "⛏️", memberCount: 1850, isOfficial: false },
-    { id: "6", name: "Portal Speedrun Hub", icon: "🔵", memberCount: 420, isOfficial: false }
+    { id: "6", name: "Portal Speedrun Hub", icon: "🔵", memberCount: 420, isOfficial: false },
+    { id: "11", name: "Elden Ring Speedrunners", icon: "⚔️", memberCount: 980, isOfficial: true },
+    { id: "12", name: "Legend of Zelda BOTW", icon: "🏹", memberCount: 1650, isOfficial: true },
+    { id: "13", name: "Stardew Valley Runners", icon: "🌾", memberCount: 320, isOfficial: false },
+    { id: "14", name: "Dark Souls Guild", icon: "🔥", memberCount: 890, isOfficial: true },
+    { id: "15", name: "Cuphead Speedrun Club", icon: "☕", memberCount: 410, isOfficial: false },
+    { id: "16", name: "Doom Eternal Slayers", icon: "👹", memberCount: 730, isOfficial: true }
   ]
 };
 
-// Mock data for channels
+// Extended mock data for channels
 const mockChannels = {
   "1": [
     { id: "101", name: "half-life", linkedGames: [
@@ -138,10 +151,61 @@ const mockChannels = {
     { id: "602", name: "portal-oob", linkedGames: [
       { id: "g9", name: "Portal", lastNotification: "2023-10-16T17:45:00Z" }
     ]}
+  ],
+  "7": [
+    { id: "701", name: "celeste-any-percent", linkedGames: [
+      { id: "g15", name: "Celeste", lastNotification: "2023-10-16T15:30:00Z" }
+    ]},
+    { id: "702", name: "celeste-all-berries", linkedGames: [
+      { id: "g15", name: "Celeste", lastNotification: "2023-10-15T20:45:00Z" }
+    ]}
+  ],
+  "8": [
+    { id: "801", name: "hades-fresh-file", linkedGames: [
+      { id: "g16", name: "Hades", lastNotification: "2023-10-14T12:20:00Z" }
+    ]},
+    { id: "802", name: "hades-all-weapons", linkedGames: [
+      { id: "g16", name: "Hades", lastNotification: "2023-10-13T18:15:00Z" }
+    ]}
+  ],
+  "9": [
+    { id: "901", name: "hollow-knight-any", linkedGames: [
+      { id: "g17", name: "Hollow Knight", lastNotification: "2023-10-12T14:50:00Z" }
+    ]},
+    { id: "902", name: "hollow-knight-all-skills", linkedGames: [
+      { id: "g17", name: "Hollow Knight", lastNotification: "2023-10-11T19:30:00Z" }
+    ]}
+  ],
+  "10": [
+    { id: "1001", name: "minecraft-glitchless", linkedGames: [
+      { id: "g8", name: "Minecraft", lastNotification: "2023-10-10T16:25:00Z" }
+    ]},
+    { id: "1002", name: "minecraft-set-seed", linkedGames: [
+      { id: "g8", name: "Minecraft", lastNotification: "2023-10-09T11:10:00Z" }
+    ]}
+  ],
+  "11": [
+    { id: "1101", name: "elden-ring-any", linkedGames: [
+      { id: "g18", name: "Elden Ring", lastNotification: "2023-10-08T13:45:00Z" }
+    ]},
+    { id: "1102", name: "elden-ring-all-remembrances", linkedGames: [
+      { id: "g18", name: "Elden Ring", lastNotification: "2023-10-07T20:30:00Z" }
+    ]}
+  ],
+  "12": [
+    { id: "1201", name: "botw-any-percent", linkedGames: [
+      { id: "g14", name: "The Legend of Zelda: Breath of the Wild", lastNotification: "2023-10-06T15:20:00Z" }
+    ]},
+    { id: "1202", name: "botw-all-shrines", linkedGames: [
+      { id: "g14", name: "The Legend of Zelda: Breath of the Wild", lastNotification: "2023-10-05T12:50:00Z" }
+    ]},
+    { id: "1203", name: "botw-all-main-quests", linkedGames: [
+      { id: "g14", name: "The Legend of Zelda: Breath of the Wild", lastNotification: "2023-10-04T18:30:00Z" }
+    ]}
   ]
 };
 
-// Mock data for games that can be linked
+// Expanded mock data for games that can be linked
 const mockAvailableGames = [
   { id: "g1", name: "Half-Life" },
   { id: "g2", name: "Half-Life 2" },
@@ -156,17 +220,58 @@ const mockAvailableGames = [
   { id: "g11", name: "Doom" },
   { id: "g12", name: "Doom Eternal" },
   { id: "g13", name: "The Legend of Zelda: Ocarina of Time" },
-  { id: "g14", name: "The Legend of Zelda: Breath of the Wild" }
+  { id: "g14", name: "The Legend of Zelda: Breath of the Wild" },
+  { id: "g15", name: "Celeste" },
+  { id: "g16", name: "Hades" },
+  { id: "g17", name: "Hollow Knight" },
+  { id: "g18", name: "Elden Ring" },
+  { id: "g19", name: "Dark Souls" },
+  { id: "g20", name: "Dark Souls II" },
+  { id: "g21", name: "Dark Souls III" },
+  { id: "g22", name: "Bloodborne" },
+  { id: "g23", name: "Sekiro: Shadows Die Twice" },
+  { id: "g24", name: "Demon's Souls" },
+  { id: "g25", name: "Cuphead" },
+  { id: "g26", name: "Stardew Valley" },
+  { id: "g27", name: "Undertale" },
+  { id: "g28", name: "Deltarune" },
+  { id: "g29", name: "Ori and the Blind Forest" },
+  { id: "g30", name: "Ori and the Will of the Wisps" },
+  { id: "g31", name: "Resident Evil 2 Remake" },
+  { id: "g32", name: "Resident Evil 3 Remake" },
+  { id: "g33", name: "Resident Evil 4 Remake" },
+  { id: "g34", name: "Resident Evil 7" },
+  { id: "g35", name: "Resident Evil Village" },
+  { id: "g36", name: "Final Fantasy VII" },
+  { id: "g37", name: "Final Fantasy VII Remake" },
+  { id: "g38", name: "Final Fantasy XVI" },
+  { id: "g39", name: "Metroid Dread" },
+  { id: "g40", name: "Super Metroid" }
 ];
 
-// Mock data for moderators
+// Expanded mock data for moderators
 const mockModerators = {
   "1": [
     { id: "mod1", type: "user", name: "SpeedyMcRunner", avatar: null },
     { id: "mod2", type: "role", name: "Half-Life Moderators", color: "#8a2be2" }
   ],
   "2": [
-    { id: "mod3", type: "user", name: "Mario64Expert", avatar: null }
+    { id: "mod3", type: "user", name: "Mario64Expert", avatar: null },
+    { id: "mod4", type: "role", name: "Mario Mods", color: "#e52b50" }
+  ],
+  "3": [
+    { id: "mod5", type: "user", name: "GTAmaster", avatar: null },
+    { id: "mod6", type: "role", name: "GTA Moderators", color: "#4682b4" }
+  ],
+  "7": [
+    { id: "mod7", type: "user", name: "MountainClimber", avatar: null }
+  ],
+  "8": [
+    { id: "mod8", type: "user", name: "EscapeHades", avatar: null }
+  ],
+  "9": [
+    { id: "mod9", type: "user", name: "VoidWalker", avatar: null },
+    { id: "mod10", type: "role", name: "Knight Moderators", color: "#20b2aa" }
   ]
 };
 
@@ -179,7 +284,15 @@ const popularGames = [
   { name: "GTA: San Andreas", icon: "🚗" },
   { name: "Doom Eternal", icon: "👹" },
   { name: "The Legend of Zelda: BotW", icon: "🏹" },
-  { name: "Celeste", icon: "🏔️" }
+  { name: "Celeste", icon: "🏔️" },
+  { name: "Elden Ring", icon: "⚔️" },
+  { name: "Hollow Knight", icon: "🐞" },
+  { name: "Hades", icon: "🔥" },
+  { name: "Dark Souls", icon: "🗡️" },
+  { name: "Cuphead", icon: "☕" },
+  { name: "Stardew Valley", icon: "🌾" },
+  { name: "Resident Evil", icon: "🧟" },
+  { name: "Metroid", icon: "👾" }
 ];
 
 // This is a placeholder Dashboard, you'll expand this with actual functionality later
@@ -290,9 +403,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-discord-darker text-white">
+    <div className="min-h-screen bg-discord-darker text-white relative">
       {/* Header */}
-      <header className="bg-discord-dark py-4 border-b border-gray-800">
+      <header className="bg-discord-dark py-4 border-b border-gray-800 sticky top-0 z-20">
         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
@@ -321,9 +434,9 @@ const Dashboard = () => {
       </header>
       
       {/* Main Content with Sidebar */}
-      <SidebarProvider>
-        <div className="w-full flex">
-          <Sidebar variant="inset" side="left">
+      <div className="flex flex-1 min-h-[calc(100vh-4rem)]">
+        <SidebarProvider>
+          <Sidebar collapsible="icon" side="left" className="bg-discord-dark border-discord-dark">
             <SidebarHeader>
               <div className="flex items-center justify-between p-2">
                 <div className="flex items-center">
@@ -342,7 +455,7 @@ const Dashboard = () => {
             </SidebarHeader>
             
             <SidebarContent>
-              {/* Settings Section */}
+              {/* User Settings Section */}
               <SidebarGroup>
                 <SidebarGroupLabel>Settings</SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -462,10 +575,11 @@ const Dashboard = () => {
                 </a>
               </div>
             </SidebarFooter>
+            <SidebarRail />
           </Sidebar>
           
           {/* Main Content Area */}
-          <div className="flex-1 mx-4 my-4 glass rounded-lg p-6">
+          <div className="flex-1 p-4 md:p-6">
             {/* Add Guild View */}
             {showAddGuild && (
               <div>
@@ -481,7 +595,7 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="space-y-6">
-                  <div className="glass p-6 rounded-lg">
+                  <div className="bg-discord-dark p-6 rounded-lg">
                     <h2 className="text-xl font-semibold mb-3">Invite the Bot</h2>
                     <p className="text-gray-300 mb-4">
                       To add speedrun.bot to your Discord guild, you need to have "Manage Server" permissions.
@@ -499,13 +613,13 @@ const Dashboard = () => {
                   </div>
                   
                   {/* Share Section */}
-                  <div className="glass p-6 rounded-lg">
+                  <div className="bg-discord-dark p-6 rounded-lg">
                     <h2 className="text-xl font-semibold mb-3">Share speedrun.bot</h2>
                     <p className="text-gray-300 mb-4">
                       Share speedrun.bot with your friends and communities to help spread the word about this free Discord bot.
                     </p>
                     
-                    <div className="bg-discord-dark/50 p-4 rounded-md mb-4">
+                    <div className="bg-discord-darker/50 p-4 rounded-md mb-4">
                       <p className="text-sm text-gray-300 mb-3">
                         Check out speedrun.bot! It's a great Discord bot for tracking speedruns from speedrun.com. Add it to your server: https://speedrun.bot/invite
                       </p>
@@ -526,13 +640,13 @@ const Dashboard = () => {
             {!selectedGuildId && !showAddGuild && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">User Settings</h1>
-                <div className="glass p-6 rounded-lg">
+                <div className="bg-discord-dark p-6 rounded-lg">
                   <h2 className="text-xl font-semibold mb-3">Connect Your Account</h2>
                   <p className="text-gray-300 mb-4">
                     Connect your speedrun.com account to allow the bot to mention you on Discord when your runs are detected.
                   </p>
                   
-                  <div className="bg-discord-dark/50 p-4 rounded-md border border-discord-blurple/30 mb-4">
+                  <div className="bg-discord-darker/50 p-4 rounded-md border border-discord-blurple/30 mb-4">
                     <div className="flex items-start">
                       <div className="flex-shrink-0 bg-yellow-500/20 rounded p-2">
                         <Bell className="h-5 w-5 text-yellow-400" />
@@ -552,7 +666,7 @@ const Dashboard = () => {
                       </label>
                       <input 
                         type="text" 
-                        className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                        className="w-full bg-discord-darker border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
                         placeholder="Your speedrun.com username"
                       />
                     </div>
@@ -563,7 +677,7 @@ const Dashboard = () => {
                       </label>
                       <input 
                         type="password" 
-                        className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                        className="w-full bg-discord-darker border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
                         placeholder="Paste your API key for verification"
                       />
                       <p className="mt-1 text-sm text-gray-400">
@@ -584,6 +698,13 @@ const Dashboard = () => {
             {selectedGuildId && !showAddGuild && (
               <div>
                 <div className="flex items-center mb-6">
+                  <Button 
+                    variant="ghost" 
+                    className="mr-2 hover:bg-discord-dark/50 md:hidden"
+                    onClick={handleBackToGuilds}
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </Button>
                   <h1 className="text-2xl font-bold flex items-center">
                     {getGuildById(selectedGuildId)?.name}
                     {getGuildById(selectedGuildId)?.isOfficial && (
@@ -623,7 +744,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                           <div className="flex-1">
-                            <select className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none">
+                            <select className="w-full bg-discord-darker border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none">
                               <option value="">Select type...</option>
                               <option value="user">Discord User</option>
                               <option value="role">Discord Role</option>
@@ -633,7 +754,7 @@ const Dashboard = () => {
                             <input 
                               type="text" 
                               placeholder="Search users or roles..."
-                              className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                              className="w-full bg-discord-darker border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
                             />
                           </div>
                           <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
@@ -796,7 +917,7 @@ const Dashboard = () => {
                                 {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id && isOwnerOrAdmin(selectedGuildId) && (
                                   <div className="mt-2 p-2 bg-discord-dark/50 rounded-md">
                                     <h4 className="text-sm font-medium mb-2">Notification Settings</h4>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                       <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
                                         <div className="flex items-center">
                                           <Trophy className="w-3 h-3 text-yellow-500 mr-1" />
@@ -805,12 +926,12 @@ const Dashboard = () => {
                                         <Button 
                                           size="sm" 
                                           variant="outline" 
-                                          className={game.notificationSettings.worldRecords 
+                                          className={game.notificationSettings?.worldRecords 
                                             ? "border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2" 
                                             : "border-gray-700 text-gray-400 hover:bg-gray-700/20 h-6 py-0 px-2"}
                                           onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'worldRecords')}
                                         >
-                                          {game.notificationSettings.worldRecords ? "On" : "Off"}
+                                          {game.notificationSettings?.worldRecords ? "On" : "Off"}
                                         </Button>
                                       </div>
                                       
@@ -822,12 +943,12 @@ const Dashboard = () => {
                                         <Button 
                                           size="sm" 
                                           variant="outline" 
-                                          className={game.notificationSettings.top3 
+                                          className={game.notificationSettings?.top3 
                                             ? "border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2" 
                                             : "border-gray-700 text-gray-400 hover:bg-gray-700/20 h-6 py-0 px-2"}
                                           onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'top3')}
                                         >
-                                          {game.notificationSettings.top3 ? "On" : "Off"}
+                                          {game.notificationSettings?.top3 ? "On" : "Off"}
                                         </Button>
                                       </div>
                                       
@@ -839,12 +960,12 @@ const Dashboard = () => {
                                         <Button 
                                           size="sm" 
                                           variant="outline" 
-                                          className={game.notificationSettings.newRuns 
+                                          className={game.notificationSettings?.newRuns 
                                             ? "border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2" 
                                             : "border-gray-700 text-gray-400 hover:bg-gray-700/20 h-6 py-0 px-2"}
                                           onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'newRuns')}
                                         >
-                                          {game.notificationSettings.newRuns ? "On" : "Off"}
+                                          {game.notificationSettings?.newRuns ? "On" : "Off"}
                                         </Button>
                                       </div>
                                       
@@ -856,12 +977,12 @@ const Dashboard = () => {
                                         <Button 
                                           size="sm" 
                                           variant="outline" 
-                                          className={game.notificationSettings.personalBests 
+                                          className={game.notificationSettings?.personalBests 
                                             ? "border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2" 
                                             : "border-gray-700 text-gray-400 hover:bg-gray-700/20 h-6 py-0 px-2"}
                                           onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'personalBests')}
                                         >
-                                          {game.notificationSettings.personalBests ? "On" : "Off"}
+                                          {game.notificationSettings?.personalBests ? "On" : "Off"}
                                         </Button>
                                       </div>
                                       
@@ -873,12 +994,12 @@ const Dashboard = () => {
                                         <Button 
                                           size="sm" 
                                           variant="outline" 
-                                          className={game.notificationSettings.approvedRuns 
+                                          className={game.notificationSettings?.approvedRuns 
                                             ? "border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2" 
                                             : "border-gray-700 text-gray-400 hover:bg-gray-700/20 h-6 py-0 px-2"}
                                           onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'approvedRuns')}
                                         >
-                                          {game.notificationSettings.approvedRuns ? "On" : "Off"}
+                                          {game.notificationSettings?.approvedRuns ? "On" : "Off"}
                                         </Button>
                                       </div>
                                     </div>
@@ -895,8 +1016,8 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        </div>
-      </SidebarProvider>
+        </SidebarProvider>
+      </div>
       
       <Footer />
     </div>

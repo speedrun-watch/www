@@ -11,7 +11,15 @@ const popularGames = [
   { name: "GTA: San Andreas", icon: "🚗" },
   { name: "Doom Eternal", icon: "👹" },
   { name: "The Legend of Zelda: BotW", icon: "🏹" },
-  { name: "Celeste", icon: "🏔️" }
+  { name: "Celeste", icon: "🏔️" },
+  { name: "Elden Ring", icon: "⚔️" },
+  { name: "Hollow Knight", icon: "🐞" },
+  { name: "Hades", icon: "🔥" },
+  { name: "Dark Souls", icon: "🗡️" },
+  { name: "Cuphead", icon: "☕" },
+  { name: "Stardew Valley", icon: "🌾" },
+  { name: "Resident Evil", icon: "🧟" },
+  { name: "Metroid", icon: "👾" }
 ];
 
 const CtaSection = () => {

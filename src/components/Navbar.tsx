@@ -35,7 +35,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <Bell className="w-6 h-6 text-discord-blurple/90 animate-pulse-light" />
+            <Bell className="w-6 h-6 text-discord-blurple/90" />
             <span className="text-xl font-bold bg-gradient-to-r from-discord-blurple/90 to-discord-fuchsia/80 bg-clip-text text-transparent">
               speedrun.bot
             </span>
@@ -82,6 +82,7 @@ const Navbar = () => {
           <button 
             className="md:hidden text-gray-300 hover:text-white"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -93,7 +94,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 p-4 bg-discord-darker/80 backdrop-blur-sm rounded-lg animate-fade-in">
+          <div className="md:hidden mt-4 p-4 bg-discord-darker/95 backdrop-blur-md rounded-lg animate-fade-in z-50">
             <div className="flex flex-col space-y-4">
               <a 
                 href="#features" 
