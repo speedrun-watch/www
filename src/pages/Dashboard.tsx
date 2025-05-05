@@ -168,7 +168,6 @@ const Dashboard = () => {
   const [editingGameSettings, setEditingGameSettings] = useState<{channelId: string, gameId: string} | null>(null);
   const [showAddModerator, setShowAddModerator] = useState(false);
   const [notificationCopied, setNotificationCopied] = useState(false);
-  const [guildsSubmenuOpen, setGuildsSubmenuOpen] = useState(false);
 
   // Combine all guilds for the "all" category
   const allGuilds = [
@@ -277,14 +276,15 @@ const Dashboard = () => {
           <div className="w-full md:w-64 glass rounded-lg p-4">
             <nav className="space-y-2">
               <Button
-                variant="outline"
-                className="w-full justify-start bg-discord-blurple text-white border-discord-blurple hover:bg-discord-blurple/90 hover:text-white"
+                variant="ghost"
+                className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
+                onClick={() => window.location.href = "/add-bot"}
               >
                 <Plus className="mr-2 h-5 w-5" />
                 Add Bot to Discord
               </Button>
               
-              <div className="relative">
+              <div>
                 <Button
                   variant="ghost"
                   className={`w-full justify-start ${
@@ -294,53 +294,50 @@ const Dashboard = () => {
                   }`}
                   onClick={() => {
                     setActiveTab("guilds");
-                    setGuildsSubmenuOpen(!guildsSubmenuOpen);
                   }}
                 >
                   <Server className="mr-2 h-5 w-5" />
                   Discord Guilds
                 </Button>
                 
-                {guildsSubmenuOpen && (
-                  <div className="ml-4 mt-1 space-y-1 border-l-2 border-discord-blurple/30 pl-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                      onClick={() => {
-                        setActiveTab("guilds");
-                        setActiveGuildCategory("owner");
-                      }}
-                    >
-                      <Shield className="mr-2 h-4 w-4" />
-                      Owner ({mockGuilds.owner.length})
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                      onClick={() => {
-                        setActiveTab("guilds");
-                        setActiveGuildCategory("admin");
-                      }}
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Admin ({mockGuilds.admin.length})
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
-                      onClick={() => {
-                        setActiveTab("guilds");
-                        setActiveGuildCategory("member");
-                      }}
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      Member ({mockGuilds.member.length})
-                    </Button>
-                  </div>
-                )}
+                <div className="ml-4 mt-1 space-y-1 border-l-2 border-discord-blurple/30 pl-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
+                    onClick={() => {
+                      setActiveTab("guilds");
+                      setActiveGuildCategory("owner");
+                    }}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Owner ({mockGuilds.owner.length})
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
+                    onClick={() => {
+                      setActiveTab("guilds");
+                      setActiveGuildCategory("admin");
+                    }}
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Admin ({mockGuilds.admin.length})
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-gray-400 hover:text-white hover:bg-discord-dark/50"
+                    onClick={() => {
+                      setActiveTab("guilds");
+                      setActiveGuildCategory("member");
+                    }}
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    Member ({mockGuilds.member.length})
+                  </Button>
+                </div>
               </div>
               
               <Button
