@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,9 +6,9 @@ import {
   Menu, 
   X, 
   Bell, 
-  LogIn, 
   Settings
 } from "lucide-react";
+import AuthStatus from "./AuthStatus";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -61,15 +60,7 @@ const Navbar = () => {
             >
               Dashboard
             </Link>
-            <Link to="/login">
-              <Button 
-                variant="outline" 
-                className="bg-transparent border-discord-blurple/70 text-discord-blurple/90 hover:bg-discord-blurple/10 hover:text-white"
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Login
-              </Button>
-            </Link>
+            <AuthStatus />
             <Button 
               className="bg-discord-blurple/80 hover:bg-discord-blurple/70 text-white"
             >
@@ -116,15 +107,7 @@ const Navbar = () => {
               >
                 Dashboard
               </Link>
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button 
-                  variant="outline" 
-                  className="w-full bg-transparent border-discord-blurple/70 text-discord-blurple/90 hover:bg-discord-blurple/10 hover:text-white"
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
-                </Button>
-              </Link>
+              <AuthStatus />
               <Button 
                 className="w-full bg-discord-blurple/80 hover:bg-discord-blurple/70 text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
