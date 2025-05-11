@@ -33,7 +33,7 @@ import {
   ShieldAlert
 } from "lucide-react";
 import Footer from "@/components/Footer";
-import AuthStatus from "../Components/AuthStatus";
+import AuthStatus from "@/components/AuthStatus";
 import DashboardMenu from "@/components/DashboardMenu";
 import axios from "axios";
 
