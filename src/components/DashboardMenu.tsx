@@ -12,6 +12,7 @@ interface DashboardMenuProps {
     setActiveTab: (tab: string) => void;
     activeGuildCategory: string;
     setActiveGuildCategory: (category: string) => void;
+    setSelectedGuildId: (guildId: string | null) => void;
     guilds: {
         owner: any[];
         admin: any[];
@@ -24,6 +25,7 @@ const DashboardMenu = ({
     setActiveTab,
     activeGuildCategory,
     setActiveGuildCategory,
+    setSelectedGuildId,
     guilds,
 }: DashboardMenuProps) => {
     return (
@@ -48,6 +50,7 @@ const DashboardMenu = ({
                             }`}
                         onClick={() => {
                             setActiveTab("guilds");
+                            setSelectedGuildId(null);
                         }}
                     >
                         <Server className="mr-2 h-5 w-5" />
@@ -65,6 +68,7 @@ const DashboardMenu = ({
                             onClick={() => {
                                 setActiveTab("guilds");
                                 setActiveGuildCategory("owner");
+                                setSelectedGuildId(null);
                             }}
                         >
                             <Shield className="mr-2 h-4 w-4" />
@@ -80,6 +84,7 @@ const DashboardMenu = ({
                             onClick={() => {
                                 setActiveTab("guilds");
                                 setActiveGuildCategory("admin");
+                                setSelectedGuildId(null);
                             }}
                         >
                             <Settings className="mr-2 h-4 w-4" />
@@ -95,6 +100,7 @@ const DashboardMenu = ({
                             onClick={() => {
                                 setActiveTab("guilds");
                                 setActiveGuildCategory("member");
+                                setSelectedGuildId(null);
                             }}
                         >
                             <Users className="mr-2 h-4 w-4" />

@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Bell, 
-  Gamepad, 
-  Settings, 
-  LogOut, 
+import {
+  Bell,
+  Gamepad,
+  Settings,
+  LogOut,
   User,
   Server,
   Home,
@@ -161,7 +161,7 @@ const Dashboard = () => {
   const [selectedGuildId, setSelectedGuildId] = useState<string | null>(null);
   const [gameSearchTerm, setGameSearchTerm] = useState("");
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
-  const [editingGameSettings, setEditingGameSettings] = useState<{channelId: string, gameId: string} | null>(null);
+  const [editingGameSettings, setEditingGameSettings] = useState<{ channelId: string, gameId: string } | null>(null);
   const [showAddModerator, setShowAddModerator] = useState(false);
   const [notificationCopied, setNotificationCopied] = useState(false);
   const [guilds, setGuilds] = useState<Guilds>({
@@ -236,7 +236,7 @@ const Dashboard = () => {
   };
 
   // Filter games based on search term
-  const filteredGames = mockAvailableGames.filter(game => 
+  const filteredGames = mockAvailableGames.filter(game =>
     game.name.toLowerCase().includes(gameSearchTerm.toLowerCase())
   );
 
@@ -245,7 +245,7 @@ const Dashboard = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) {
       return "Today at " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else if (diffInDays === 1) {
@@ -441,7 +441,7 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
-      
+
       {/* Main Content */}
       <div className="container mx-auto px-4 md:px-6 py-8">
         <div className="flex flex-col md:flex-row gap-8">
@@ -451,15 +451,16 @@ const Dashboard = () => {
             setActiveTab={setActiveTab}
             activeGuildCategory={activeGuildCategory}
             setActiveGuildCategory={setActiveGuildCategory}
+            setSelectedGuildId={setSelectedGuildId}
             guilds={guilds}
           />
-          
+
           {/* Main Content Area */}
           <div className="flex-1 glass rounded-lg p-6">
             {activeTab === "add-bot" && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">Add speedrun.bot to Discord</h1>
-                
+
                 <div className="space-y-10">
                   {/* Step 1 */}
                   <div className="glass rounded-lg p-6 relative">
@@ -476,7 +477,7 @@ const Dashboard = () => {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {/* Step 2 */}
                   <div className="glass rounded-lg p-6 relative">
                     <div className="absolute -left-3 -top-3 bg-discord-blurple text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
@@ -509,7 +510,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Step 3 */}
                   <div className="glass rounded-lg p-6 relative">
                     <div className="absolute -left-3 -top-3 bg-discord-blurple text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
@@ -530,7 +531,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="mt-6 text-center">
-                      <Button 
+                      <Button
                         className="bg-discord-blurple hover:bg-discord-blurple/90"
                         onClick={() => setActiveTab("guilds")}
                       >
@@ -539,7 +540,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-12 text-center">
                   <p className="text-gray-400">
                     Need help? Join our <a href="#" className="text-discord-blurple hover:underline">support server</a> or check the <a href="#" className="text-discord-blurple hover:underline">documentation</a>.
@@ -547,12 +548,12 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Original guilds tab content */}
             {activeTab === "guilds" && !selectedGuildId && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">Discord Guilds</h1>
-                
+
                 <Tabs value={activeGuildCategory} onValueChange={(value) => {
                   setActiveGuildCategory(value);
                   setActiveTab("guilds");
@@ -574,7 +575,7 @@ const Dashboard = () => {
                       Member ({guilds.member.length})
                     </TabsTrigger>
                   </TabsList>
-                
+
                   <TabsContent value="all" className="mt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {allGuilds.map(guild => (
@@ -603,8 +604,8 @@ const Dashboard = () => {
                               </div>
                               <p className="text-gray-400 text-sm">{guild.owner ? "Owner" : "Admin"}</p>
                             </div>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
                               onClick={() => setSelectedGuildId(guild.id)}
                             >
@@ -615,7 +616,7 @@ const Dashboard = () => {
                       ))}
                     </div>
                   </TabsContent>
-                
+
                   <TabsContent value="owner" className="mt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {guilds.owner.map(guild => (
@@ -644,8 +645,8 @@ const Dashboard = () => {
                               </div>
                               <p className="text-gray-400 text-sm">{guild.owner ? "Owner" : "Admin"}</p>
                             </div>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
                               onClick={() => setSelectedGuildId(guild.id)}
                             >
@@ -656,7 +657,7 @@ const Dashboard = () => {
                       ))}
                     </div>
                   </TabsContent>
-                
+
                   {/* Admin and Member tabs - same pattern as the other tabs but with different data */}
                   <TabsContent value="admin" className="mt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -678,8 +679,8 @@ const Dashboard = () => {
                               <h3 className="text-white font-medium truncate">{guild.name}</h3>
                               <p className="text-gray-400 text-sm">{guild.owner ? "Owner" : "Admin"}</p>
                             </div>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
                               onClick={() => setSelectedGuildId(guild.id)}
                             >
@@ -690,7 +691,7 @@ const Dashboard = () => {
                       ))}
                     </div>
                   </TabsContent>
-                
+
                   <TabsContent value="member" className="mt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {guilds.member.map(guild => (
@@ -711,8 +712,8 @@ const Dashboard = () => {
                               <h3 className="text-white font-medium truncate">{guild.name}</h3>
                               <p className="text-gray-400 text-sm">{guild.owner ? "Owner" : "Admin"}</p>
                             </div>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
                               onClick={() => setSelectedGuildId(guild.id)}
                             >
@@ -726,30 +727,30 @@ const Dashboard = () => {
                 </Tabs>
               </div>
             )}
-            
+
             {activeTab === "guilds" && selectedGuildId && (
               <div>
                 <div className="flex items-center mb-6">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="mr-4 hover:bg-discord-dark/50"
                     onClick={handleBackToGuilds}
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
-                  
+
                   <h1 className="text-2xl font-bold flex items-center">
                     {allGuilds.find(g => g.id === selectedGuildId)?.name}
                   </h1>
                 </div>
-                
+
                 {/* Moderators Section */}
                 <div className="bg-discord-dark rounded-lg p-4 mb-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold">Moderators</h2>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="border-discord-blurple text-discord-blurple hover:bg-discord-blurple hover:text-white"
                       onClick={() => setShowAddModerator(!showAddModerator)}
                     >
@@ -757,12 +758,12 @@ const Dashboard = () => {
                       {showAddModerator ? "Cancel" : "Add Moderator"}
                     </Button>
                   </div>
-                  
+
                   {showAddModerator && (
                     <div className="bg-discord-darker p-4 rounded-md mb-4">
                       <div className="mb-4">
                         <p className="text-sm text-gray-300 mb-2">
-                          Moderators have the same abilities as you for managing game notifications, 
+                          Moderators have the same abilities as you for managing game notifications,
                           but cannot remove you (the owner) or remove the bot entirely from the guild.
                         </p>
                       </div>
@@ -775,8 +776,8 @@ const Dashboard = () => {
                           </select>
                         </div>
                         <div className="flex-1">
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Search users or roles..."
                             className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
                           />
@@ -787,7 +788,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="space-y-2">
                     {mockModerators[selectedGuildId as keyof typeof mockModerators]?.map(mod => (
                       <div key={mod.id} className="flex items-center justify-between bg-discord-darker p-2 rounded-md">
@@ -813,13 +814,13 @@ const Dashboard = () => {
                         </Button>
                       </div>
                     ))}
-                    {(!mockModerators[selectedGuildId as keyof typeof mockModerators] || 
-                     mockModerators[selectedGuildId as keyof typeof mockModerators].length === 0) && (
-                      <p className="text-gray-400 text-sm italic">No moderators added yet</p>
-                    )}
+                    {(!mockModerators[selectedGuildId as keyof typeof mockModerators] ||
+                      mockModerators[selectedGuildId as keyof typeof mockModerators].length === 0) && (
+                        <p className="text-gray-400 text-sm italic">No moderators added yet</p>
+                      )}
                   </div>
                 </div>
-                
+
                 <div className="bg-discord-dark rounded-lg p-4 mb-6">
                   <h2 className="text-xl font-semibold mb-4">Notification Channels</h2>
                   <div className="space-y-4">
@@ -892,133 +893,133 @@ const Dashboard = () => {
                             <p className="text-gray-400 text-sm italic">No games linked to this channel</p>
                           ) : (
                             <div className="space-y-2">
-                                {channel.games.map(game => (
-                                  <div key={game.id} className="flex flex-col p-2 bg-discord-dark/30 rounded-md">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <div className="flex items-center">
-                                        <Gamepad className="w-4 h-4 text-discord-green mr-2" />
-                                        <span>{game.gameName}</span>
+                              {channel.games.map(game => (
+                                <div key={game.id} className="flex flex-col p-2 bg-discord-dark/30 rounded-md">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center">
+                                      <Gamepad className="w-4 h-4 text-discord-green mr-2" />
+                                      <span>{game.gameName}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <div className="flex items-center text-xs text-gray-400">
+                                        <Clock className="w-3 h-3 mr-1" />
+                                        <span>Last: {formatDate(game.releaseDate)}</span>
                                       </div>
-                                      <div className="flex items-center space-x-2">
-                                        <div className="flex items-center text-xs text-gray-400">
-                                          <Clock className="w-3 h-3 mr-1" />
-                                          <span>Last: {formatDate(game.releaseDate)}</span>
-                                        </div>
 
-                                        {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id ? (
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-gray-400 hover:text-white h-8 p-0 w-8"
-                                            onClick={() => setEditingGameSettings(null)}
-                                          >
-                                            <X className="w-4 h-4" />
-                                          </Button>
-                                        ) : (
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-gray-400 hover:text-white h-8 p-0 w-8"
-                                            onClick={() => setEditingGameSettings({ channelId: channel.id, gameId: game.id })}
-                                          >
-                                            <Settings className="w-4 h-4" />
-                                          </Button>
-                                        )}
-
+                                      {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id ? (
                                         <Button
                                           size="sm"
                                           variant="ghost"
-                                          className="text-gray-400 hover:text-red-500 h-8 p-0 w-8"
-                                          onClick={() => handleUnlinkGame(channel.id, game.gameName)}
+                                          className="text-gray-400 hover:text-white h-8 p-0 w-8"
+                                          onClick={() => setEditingGameSettings(null)}
                                         >
                                           <X className="w-4 h-4" />
                                         </Button>
-                                      </div>
+                                      ) : (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="text-gray-400 hover:text-white h-8 p-0 w-8"
+                                          onClick={() => setEditingGameSettings({ channelId: channel.id, gameId: game.id })}
+                                        >
+                                          <Settings className="w-4 h-4" />
+                                        </Button>
+                                      )}
+
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-gray-400 hover:text-red-500 h-8 p-0 w-8"
+                                        onClick={() => handleUnlinkGame(channel.id, game.gameName)}
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </Button>
                                     </div>
+                                  </div>
 
-                                    {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id && (
-                                      <div className="mt-2 p-2 bg-discord-dark/50 rounded-md">
-                                        <h4 className="text-sm font-medium mb-2">Notification Settings</h4>
-                                        <div className="grid grid-cols-2 gap-2">
-                                          <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
-                                            <div className="flex items-center">
-                                              <Trophy className="w-3 h-3 text-yellow-500 mr-1" />
-                                              <span>World Records</span>
-                                            </div>
-                                            <Button
-                                              size="sm"
-                                              variant="outline" 
-                                              className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
-                                              onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'worldRecords')}
-                                            >
-                                              On
-                                            </Button>
+                                  {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id && (
+                                    <div className="mt-2 p-2 bg-discord-dark/50 rounded-md">
+                                      <h4 className="text-sm font-medium mb-2">Notification Settings</h4>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
+                                          <div className="flex items-center">
+                                            <Trophy className="w-3 h-3 text-yellow-500 mr-1" />
+                                            <span>World Records</span>
                                           </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
+                                            onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'worldRecords')}
+                                          >
+                                            On
+                                          </Button>
+                                        </div>
 
-                                          <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
-                                            <div className="flex items-center">
-                                              <Medal className="w-3 h-3 text-blue-400 mr-1" />
-                                              <span>Top 3</span>
-                                            </div>
-                                            <Button
-                                              size="sm"
-                                              variant="outline" 
-                                              className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
-                                              onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'top3')}
-                                            >
-                                              On
-                                            </Button>
+                                        <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
+                                          <div className="flex items-center">
+                                            <Medal className="w-3 h-3 text-blue-400 mr-1" />
+                                            <span>Top 3</span>
                                           </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
+                                            onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'top3')}
+                                          >
+                                            On
+                                          </Button>
+                                        </div>
 
-                                          <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
-                                            <div className="flex items-center">
-                                              <Zap className="w-3 h-3 text-purple-400 mr-1" />
-                                              <span>New Runs</span>
-                                            </div>
-                                            <Button
-                                              size="sm"
-                                              variant="outline" 
-                                              className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
-                                              onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'newRuns')}
-                                            >
-                                              On
-                                            </Button>
+                                        <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
+                                          <div className="flex items-center">
+                                            <Zap className="w-3 h-3 text-purple-400 mr-1" />
+                                            <span>New Runs</span>
                                           </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
+                                            onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'newRuns')}
+                                          >
+                                            On
+                                          </Button>
+                                        </div>
 
-                                          <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
-                                            <div className="flex items-center">
-                                              <Flag className="w-3 h-3 text-red-400 mr-1" />
-                                              <span>Personal Bests</span>
-                                            </div>
-                                            <Button
-                                              size="sm"
-                                              variant="outline" 
-                                              className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
-                                              onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'personalBests')}
-                                            >
-                                              On
-                                            </Button>
+                                        <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
+                                          <div className="flex items-center">
+                                            <Flag className="w-3 h-3 text-red-400 mr-1" />
+                                            <span>Personal Bests</span>
                                           </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
+                                            onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'personalBests')}
+                                          >
+                                            On
+                                          </Button>
+                                        </div>
 
-                                          <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
-                                            <div className="flex items-center">
-                                              <FileCheck className="w-3 h-3 text-green-400 mr-1" />
-                                              <span>Approved Runs</span>
-                                            </div>
-                                            <Button
-                                              size="sm"
-                                              variant="outline" 
-                                              className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
-                                              onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'approvedRuns')}
-                                            >
-                                              On
-                                            </Button>
+                                        <div className="flex items-center justify-between text-sm bg-discord-darker p-2 rounded">
+                                          <div className="flex items-center">
+                                            <FileCheck className="w-3 h-3 text-green-400 mr-1" />
+                                            <span>Approved Runs</span>
                                           </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-green-500 text-green-400 hover:bg-green-500/20 h-6 py-0 px-2"
+                                            onClick={() => handleUpdateNotificationSettings(channel.id, game.id, 'approvedRuns')}
+                                          >
+                                            On
+                                          </Button>
                                         </div>
                                       </div>
-                                    )}
-                                  </div>
-                                ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
@@ -1027,7 +1028,7 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-            
+
             {activeTab === "games" && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">Game Tracking</h1>
@@ -1038,7 +1039,7 @@ const Dashboard = () => {
                     <p className="text-gray-400 mb-6 max-w-md mx-auto">
                       To configure game tracking, first select a guild from the Discord Guilds section.
                     </p>
-                    <Button 
+                    <Button
                       className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
                       onClick={() => setActiveTab("guilds")}
                     >
@@ -1049,7 +1050,7 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
-            
+
             {activeTab === "settings" && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">Settings</h1>
@@ -1059,7 +1060,7 @@ const Dashboard = () => {
                     <p className="text-gray-300 mb-4">
                       Connect your speedrun.com account to allow the bot to mention you on Discord when your runs are detected.
                     </p>
-                    
+
                     <div className="bg-discord-dark/50 p-4 rounded-md border border-discord-blurple/30 mb-4">
                       <div className="flex items-start">
                         <div className="flex-shrink-0 bg-yellow-500/20 rounded p-2">
@@ -1072,25 +1073,25 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">
                           speedrun.com Username
                         </label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
                           placeholder="Your speedrun.com username"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">
                           speedrun.com API Key (temporary verification only)
                         </label>
-                        <input 
-                          type="password" 
+                        <input
+                          type="password"
                           className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
                           placeholder="Paste your API key for verification"
                         />
@@ -1098,26 +1099,26 @@ const Dashboard = () => {
                           Find your API key in your speedrun.com account settings.
                         </p>
                       </div>
-                      
+
                       <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
                         <UserCheck className="mr-2 w-4 h-4" />
                         Verify Identity
                       </Button>
                     </div>
                   </div>
-                  
+
                   {/* Share Section */}
                   <div className="glass p-6 rounded-lg">
                     <h2 className="text-xl font-semibold mb-3">Share speedrun.bot</h2>
                     <p className="text-gray-300 mb-4">
                       Share speedrun.bot with your friends and communities to help spread the word about this free Discord bot.
                     </p>
-                    
+
                     <div className="bg-discord-dark/50 p-4 rounded-md mb-4">
                       <p className="text-sm text-gray-300 mb-3">
                         Check out speedrun.bot! It's a great Discord bot for tracking speedruns from speedrun.com. Add it to your server: https://speedrun.bot/invite
                       </p>
-                      <Button 
+                      <Button
                         onClick={handleCopyShareText}
                         className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
                       >
@@ -1132,7 +1133,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );
