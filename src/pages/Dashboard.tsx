@@ -70,6 +70,7 @@ interface Game {
   discord: string;
   released: number;
   releaseDate: string;
+  notificationType?: string; // Add notification setting field
   ruleset: {
     showMilliseconds: boolean;
     requireVerification: boolean;
@@ -181,7 +182,6 @@ const Dashboard = () => {
   const [isUnlinkingGame, setIsUnlinkingGame] = useState<string | null>(null);
   const [isFetchingGuilds, setIsFetchingGuilds] = useState(false);
   const [isFetchingChannels, setIsFetchingChannels] = useState(false);
-  const [notificationSettings, setNotificationSettings] = useState<Record<string, string>>({});
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -389,13 +389,22 @@ const Dashboard = () => {
 
   // Update game notification settings
   const handleUpdateNotificationSettings = async (channelId: string, gameId: string, setting: string) => {
-    const key = `${channelId}-${gameId}`;
-
     // Update local state immediately for responsive UI
-    setNotificationSettings(prev => ({
-      ...prev,
-      [key]: setting
-    }));
+    setChannels(prevChannels =>
+      prevChannels.map(channel => {
+        if (channel.id === channelId && channel.games) {
+          return {
+            ...channel,
+            games: channel.games.map(game =>
+              game.id === gameId
+                ? { ...game, notificationType: setting }
+                : game
+            )
+          };
+        }
+        return channel;
+      })
+    );
 
     try {
       // Make API call to update the setting on the backend
@@ -416,10 +425,21 @@ const Dashboard = () => {
       console.error("Error updating notification settings:", error);
 
       // Revert local state on error
-      setNotificationSettings(prev => ({
-        ...prev,
-        [key]: prev[key] || 'world-records' // Revert to previous value or default
-      }));
+      setChannels(prevChannels =>
+        prevChannels.map(channel => {
+          if (channel.id === channelId && channel.games) {
+            return {
+              ...channel,
+              games: channel.games.map(game =>
+                game.id === gameId
+                  ? { ...game, notificationType: game.notificationType || 'world-records' } // Revert to previous value
+                  : game
+              )
+            };
+          }
+          return channel;
+        })
+      );
 
       // You could show a toast notification here to inform the user of the error
       alert("Failed to update notification settings. Please try again.");
@@ -428,8 +448,17 @@ const Dashboard = () => {
 
   // Get current notification setting for a game
   const getCurrentNotificationSetting = (channelId: string, gameId: string) => {
-    const key = `${channelId}-${gameId}`;
-    return notificationSettings[key] || 'world-records'; // Default to world-records
+    // Find the game in the channels data
+    const channel = channels.find(c => c.id === channelId);
+    const game = channel?.games?.find(g => g.id === gameId);
+    
+    // Return the notification type from the game data, or default to 'world-records'
+    const setting = game?.notificationType || 'world-records';
+    
+    console.log(`Getting notification setting for channel ${channelId}, game ${gameId}:`, setting);
+    console.log("Game data:", game);
+    
+    return setting;
   };
 
   // Copy share text
