@@ -19,6 +19,7 @@ import {
   Server,
   Home,
   Shield,
+  ShieldCheck,
   Users,
   X,
   Plus,
@@ -688,7 +689,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {(activeGuildCategory === "all" ? allGuilds :
                         activeGuildCategory === "owner" ? guilds.owner :
                           activeGuildCategory === "admin" ? guilds.admin :
@@ -708,41 +709,41 @@ const Dashboard = () => {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center">
-                                <h3 className="text-white font-medium truncate">{guild.name}</h3>
-                                {guild.owner ? (
-                                  <Badge className="ml-2 bg-green-600 hover:bg-green-700">
-                                    <Shield className="w-3 h-3 mr-1" />
-                                    Owner
-                                  </Badge>
-                                ) : (guild.permissions & 0x8) === 0x8 ? (
-                                  <Badge className="ml-2 bg-blue-600 hover:bg-blue-700">
-                                    <Settings className="w-3 h-3 mr-1" />
-                                    Admin
-                                  </Badge>
-                                ) : (
-                                  <Badge className="ml-2 bg-gray-600 hover:bg-gray-700">
-                                    <Users className="w-3 h-3 mr-1" />
-                                    Member
-                                  </Badge>
-                                )}
-                              </div>
+                              <h3 className="text-white font-medium truncate">{guild.name}</h3>
                             </div>
-                            <Button
-                              size="sm"
-                              className="bg-discord-blurple hover:bg-discord-blurple/90 text-white"
-                              onClick={() => setSelectedGuildId(guild.id)}
-                              disabled={isFetchingChannels && selectedGuildId === guild.id}
-                            >
-                              {isFetchingChannels && selectedGuildId === guild.id ? (
-                                <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Loading...
-                                </>
+                            <div className="flex items-center space-x-2">
+                              {guild.owner ? (
+                                <div className="flex items-center bg-green-400/10 border border-green-400/20 rounded-full px-2 py-1">
+                                  <Shield className="w-4 h-4 text-green-400" />
+                                  <span className="hidden xl:ml-1 xl:block text-sm text-green-400">Owner</span>
+                                </div>
+                              ) : (guild.permissions & 0x8) === 0x8 ? (
+                                <div className="flex items-center bg-blue-400/10 border border-blue-400/20 rounded-full px-2 py-1">
+                                  <ShieldCheck className="w-4 h-4 text-blue-400" />
+                                  <span className="hidden xl:ml-1 xl:block text-sm text-blue-400">Admin</span>
+                                </div>
                               ) : (
-                                "Manage"
+                                <div className="flex items-center bg-gray-400/10 border border-gray-400/20 rounded-full px-2 py-1">
+                                  <Users className="w-4 h-4 text-gray-400" />
+                                  <span className="hidden xl:ml-1 xl:block text-sm text-gray-400">Member</span>
+                                </div>
                               )}
-                            </Button>
+                              <Button
+                                size="sm"
+                                className="bg-discord-blurple hover:bg-discord-blurple/90 text-white flex-shrink-0"
+                                onClick={() => setSelectedGuildId(guild.id)}
+                                disabled={isFetchingChannels && selectedGuildId === guild.id}
+                              >
+                                {isFetchingChannels && selectedGuildId === guild.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Settings className="w-4 h-4" />
+                                    <span className="hidden xl:ml-1 xl:block">Manage</span>
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))}
