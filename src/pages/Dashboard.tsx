@@ -961,18 +961,18 @@ const Dashboard = () => {
                                           >
                                             <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-discord-dark/30 transition-colors">
                                               <RadioGroupItem
-                                                value="world-records"
-                                                id={`wr-${channel.id}-${game.id}`}
+                                                value="any"
+                                                id={`any-${channel.id}-${game.id}`}
                                                 className="border-gray-500 text-discord-blurple data-[state=checked]:border-discord-blurple"
                                               />
                                               <Label
-                                                htmlFor={`wr-${channel.id}-${game.id}`}
+                                                htmlFor={`any-${channel.id}-${game.id}`}
                                                 className="flex items-center cursor-pointer flex-1"
                                               >
-                                                <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
+                                                <Zap className="w-4 h-4 text-purple-400 mr-2" />
                                                 <div>
-                                                  <span className="text-sm font-medium text-gray-200">World Records Only</span>
-                                                  <p className="text-xs text-gray-400">Get notified only for new world records</p>
+                                                  <span className="text-sm font-medium text-gray-200">Any New Run</span>
+                                                  <p className="text-xs text-gray-400">Get notified for all submitted runs</p>
                                                 </div>
                                               </Label>
                                             </div>
@@ -997,18 +997,18 @@ const Dashboard = () => {
 
                                             <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-discord-dark/30 transition-colors">
                                               <RadioGroupItem
-                                                value="any"
-                                                id={`any-${channel.id}-${game.id}`}
+                                                value="world-records"
+                                                id={`wr-${channel.id}-${game.id}`}
                                                 className="border-gray-500 text-discord-blurple data-[state=checked]:border-discord-blurple"
                                               />
                                               <Label
-                                                htmlFor={`any-${channel.id}-${game.id}`}
+                                                htmlFor={`wr-${channel.id}-${game.id}`}
                                                 className="flex items-center cursor-pointer flex-1"
                                               >
-                                                <Zap className="w-4 h-4 text-purple-400 mr-2" />
+                                                <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
                                                 <div>
-                                                  <span className="text-sm font-medium text-gray-200">Any New Run</span>
-                                                  <p className="text-xs text-gray-400">Get notified for all submitted runs</p>
+                                                  <span className="text-sm font-medium text-gray-200">World Records Only</span>
+                                                  <p className="text-xs text-gray-400">Get notified only for new world records</p>
                                                 </div>
                                               </Label>
                                             </div>
