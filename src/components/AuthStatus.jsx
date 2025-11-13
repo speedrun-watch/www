@@ -25,7 +25,7 @@ const AuthStatus = () => {
     return (
       <Button
         variant="outline"
-        className="bg-transparent border-discord-blurple/70 text-discord-blurple/90 hover:bg-discord-blurple/10 hover:text-white"
+        className="bg-transparent border-white/10 text-white hover:bg-white/5"
         onClick={handleSignIn}
       >
         <LogIn className="mr-2 h-4 w-4" />

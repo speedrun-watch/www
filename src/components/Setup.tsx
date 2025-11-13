@@ -74,7 +74,7 @@ const Setup = () => {
       icon: <BellRing className="w-6 h-6 text-discord-yellow/80" />,
       buttonText: authStatus.user ? "Go to Dashboard" : undefined,
       buttonIcon: authStatus.user ? <ArrowRight className="w-4 h-4" /> : undefined,
-      action: authStatus.user ? () => window.location.href = "/dashboard" : undefined
+      action: authStatus.user ? () => window.open('/dashboard', '_self') : undefined
     },
   ];
 
@@ -126,17 +126,29 @@ const Setup = () => {
                     <p className="text-gray-300 mb-6">{step.description}</p>
 
                     {step.buttonText && (
-                      <Button
-                        variant={index === 0 ? "default" : "outline"}
-                        className={index === 0
-                          ? "w-full sm:w-auto bg-discord-blurple/80 hover:bg-discord-blurple/70 text-white"
-                          : "w-full sm:w-auto bg-transparent border-discord-blurple/20 text-discord-blurple/90 hover:bg-discord-blurple/5"
-                        }
-                        onClick={step.action}
-                      >
-                        {step.buttonIcon && <span className="mr-2">{step.buttonIcon}</span>}
-                        {step.buttonText}
-                      </Button>
+                      step.number === "3" && authStatus.user ? (
+                        <Link to="/dashboard">
+                          <Button
+                            variant="outline"
+                            className="w-full sm:w-auto bg-transparent border-white/10 text-white hover:bg-white/5"
+                          >
+                            {step.buttonIcon && <span className="mr-2">{step.buttonIcon}</span>}
+                            {step.buttonText}
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Button
+                          variant={index === 0 ? "default" : "outline"}
+                          className={index === 0
+                            ? "w-full sm:w-auto bg-discord-blurple/80 hover:bg-discord-blurple/70 text-white"
+                            : "w-full sm:w-auto bg-transparent border-white/10 text-white hover:bg-white/5"
+                          }
+                          onClick={step.action}
+                        >
+                          {step.buttonIcon && <span className="mr-2">{step.buttonIcon}</span>}
+                          {step.buttonText}
+                        </Button>
+                      )
                     )}
                   </div>
                 </Card>

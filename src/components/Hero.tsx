@@ -54,7 +54,11 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
-            <Button className="bg-discord-blurple/90 hover:bg-discord-blurple/80 text-white w-full sm:w-auto px-6 py-5" size="lg">
+            <Button
+              className="bg-discord-blurple/90 hover:bg-discord-blurple/80 text-white w-full sm:w-auto px-6 py-5"
+              size="lg"
+              onClick={() => window.open('https://discord.com/oauth2/authorize?client_id=1311698143733354537&permissions=2214751313&integration_type=0&scope=bot', '_blank')}
+            >
               <MessageSquare className="mr-2 h-5 w-5" />
               Add to Discord
             </Button>
