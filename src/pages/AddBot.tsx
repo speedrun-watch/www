@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 
 const AddBot = () => {
   return (
-    <div className="min-h-screen bg-discord-darker text-white">
+    <div className="min-h-screen bg-discord-darker text-white flex flex-col">
       {/* Header */}
       <header className="bg-discord-dark py-4 border-b border-gray-800">
         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
@@ -19,7 +19,7 @@ const AddBot = () => {
           </Link>
 
           <div className="flex items-center space-x-4">
-            <Button asChild size="sm" className="bg-discord-blurple hover:bg-discord-blurple/90">
+            <Button asChild size="sm" variant="outline" className="bg-transparent border-white/10 text-white hover:bg-white/5 font-medium">
               <Link to="/dashboard">
                 Dashboard
               </Link>
@@ -29,7 +29,7 @@ const AddBot = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 md:px-6 py-12">
+      <main className="container mx-auto px-4 md:px-6 py-12 flex-1">
         <div className="max-w-4xl mx-auto">
           <div className="mb-12 text-center">
             <div className="inline-block p-4 bg-discord-dark/50 rounded-full mb-6">
@@ -128,9 +128,10 @@ const AddBot = () => {
         </div>
       </main>
 
+      {/* Footer */}
       <Footer />
     </div>
-  );
+  )
 };
 
 export default AddBot;
