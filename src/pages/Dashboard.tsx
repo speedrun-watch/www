@@ -3,8 +3,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Bell,
   Gamepad,
@@ -32,9 +37,7 @@ import {
   Bot,
   Check,
   ShieldAlert,
-  Loader2,
-  ChevronDown,
-  ChevronUp
+  Loader2
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import AuthStatus from "@/components/AuthStatus";
@@ -166,7 +169,6 @@ const Dashboard = () => {
   const [selectedGuildId, setSelectedGuildId] = useState<string | null>(null);
   const [gameSearchTerm, setGameSearchTerm] = useState("");
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
-  const [editingGameSettings, setEditingGameSettings] = useState<{ channelId: string, gameId: string } | null>(null);
   const [showAddModerator, setShowAddModerator] = useState(false);
   const [notificationCopied, setNotificationCopied] = useState(false);
   const [guilds, setGuilds] = useState<Guilds>({
@@ -277,7 +279,6 @@ const Dashboard = () => {
   const handleBackToGuilds = () => {
     setSelectedGuildId(null);
     setActiveChannelId(null);
-    setEditingGameSettings(null);
   };
 
   // Link a game to a channel
@@ -458,6 +459,34 @@ const Dashboard = () => {
     console.log("Game data:", game);
 
     return setting;
+  };
+
+  // Get display name for notification types
+  const getNotificationDisplayName = (type: string) => {
+    switch (type) {
+      case 'any':
+        return 'Any New Run';
+      case 'top-3':
+        return 'Top 3 Placements';
+      case 'world-records':
+        return 'World Records Only';
+      default:
+        return 'World Records Only';
+    }
+  };
+
+  // Get icon for notification types
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'any':
+        return <Zap className="w-4 h-4 text-purple-400" />;
+      case 'top-3':
+        return <Medal className="w-4 h-4 text-blue-400" />;
+      case 'world-records':
+        return <Trophy className="w-4 h-4 text-yellow-500" />;
+      default:
+        return <Trophy className="w-4 h-4 text-yellow-500" />;
+    }
   };
 
   // Copy share text
@@ -901,120 +930,56 @@ const Dashboard = () => {
                               ) : (
                                 <div className="space-y-2">
                                   {channel.games.map(game => (
-                                    <div key={game.id} className="flex flex-col p-2 bg-discord-dark/30 rounded-md">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center">
-                                          <Gamepad className="w-4 h-4 text-discord-green mr-2" />
-                                          <span>{game.gameName}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                          {/* <div className="flex items-center text-xs text-gray-400">
-                                        <Clock className="w-3 h-3 mr-1" />
-                                        <span>Linked: {formatDate(game.releaseDate)}</span>
-                                      </div> */}
-
-                                          {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id ? (
-                                            <Button
-                                              size="sm"
-                                              variant="ghost"
-                                              className="text-gray-400 hover:text-white h-8 p-0 w-8"
-                                              onClick={() => setEditingGameSettings(null)}
-                                            >
-                                              <ChevronUp className="w-4 h-4" />
-                                            </Button>
-                                          ) : (
-                                            <Button
-                                              size="sm"
-                                              variant="ghost"
-                                              className="text-gray-400 hover:text-white h-8 p-0 w-8"
-                                              onClick={() => setEditingGameSettings({ channelId: channel.id, gameId: game.id })}
-                                            >
-                                              <ChevronDown className="w-4 h-4" />
-                                            </Button>
-                                          )}
-
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-gray-400 hover:text-red-500 h-8 p-0 w-8"
-                                            onClick={() => handleUnlinkGame(channel.id, game.gameName)}
-                                            disabled={isUnlinkingGame === `${channel.id}-${game.gameName}`}
-                                          >
-                                            {isUnlinkingGame === `${channel.id}-${game.gameName}` ? (
-                                              <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                              <X className="w-4 h-4" />
-                                            )}
-                                          </Button>
-                                        </div>
+                                    <div key={game.id} className="flex items-center justify-between p-3 bg-discord-dark/30 rounded-md">
+                                      <div className="flex items-center space-x-3">
+                                        <Gamepad className="w-4 h-4 text-discord-green flex-shrink-0" />
+                                        <span className="text-gray-200">{game.gameName}</span>
                                       </div>
 
-                                      {editingGameSettings && editingGameSettings.channelId === channel.id && editingGameSettings.gameId === game.id && (
-                                        <div className="mt-2 p-4 bg-discord-dark/50 rounded-md border border-discord-blurple/20">
-                                          <h4 className="text-sm font-medium mb-2 text-gray-200">Notification Settings</h4>
-                                          <p className="text-xs text-gray-400 mb-4">Choose which type of runs to get notified about:</p>
+                                      <div className="flex items-center space-x-2">
+                                        <Select
+                                          value={getCurrentNotificationSetting(channel.id, game.id)}
+                                          onValueChange={(value) => handleUpdateNotificationSettings(channel.id, game.id, value)}
+                                        >
+                                          <SelectTrigger className="w-[220px] bg-discord-dark border-gray-600 text-gray-200">
+                                            <SelectValue placeholder="Select notification type" />
+                                          </SelectTrigger>
+                                          <SelectContent className="bg-discord-dark border-gray-600">
+                                            <SelectItem value="any" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                              <div className="flex items-center space-x-2">
+                                                <Zap className="w-4 h-4 text-purple-400" />
+                                                <span>Any New Run</span>
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="top-3" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                              <div className="flex items-center space-x-2">
+                                                <Medal className="w-4 h-4 text-blue-400" />
+                                                <span>Top 3 Placements</span>
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="world-records" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                              <div className="flex items-center space-x-2">
+                                                <Trophy className="w-4 h-4 text-yellow-500" />
+                                                <span>World Records Only</span>
+                                              </div>
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
 
-                                          <RadioGroup
-                                            value={getCurrentNotificationSetting(channel.id, game.id)}
-                                            onValueChange={(value) => handleUpdateNotificationSettings(channel.id, game.id, value)}
-                                            className="space-y-3"
-                                          >
-                                            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-discord-dark/30 transition-colors">
-                                              <RadioGroupItem
-                                                value="any"
-                                                id={`any-${channel.id}-${game.id}`}
-                                                className="border-gray-500 text-discord-blurple data-[state=checked]:border-discord-blurple"
-                                              />
-                                              <Label
-                                                htmlFor={`any-${channel.id}-${game.id}`}
-                                                className="flex items-center cursor-pointer flex-1"
-                                              >
-                                                <Zap className="w-4 h-4 text-purple-400 mr-2" />
-                                                <div>
-                                                  <span className="text-sm font-medium text-gray-200">Any New Run</span>
-                                                  <p className="text-xs text-gray-400">Get notified for all submitted runs</p>
-                                                </div>
-                                              </Label>
-                                            </div>
-
-                                            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-discord-dark/30 transition-colors">
-                                              <RadioGroupItem
-                                                value="top-3"
-                                                id={`top3-${channel.id}-${game.id}`}
-                                                className="border-gray-500 text-discord-blurple data-[state=checked]:border-discord-blurple"
-                                              />
-                                              <Label
-                                                htmlFor={`top3-${channel.id}-${game.id}`}
-                                                className="flex items-center cursor-pointer flex-1"
-                                              >
-                                                <Medal className="w-4 h-4 text-blue-400 mr-2" />
-                                                <div>
-                                                  <span className="text-sm font-medium text-gray-200">Top 3 Placements</span>
-                                                  <p className="text-xs text-gray-400">Get notified for top 3 leaderboard positions</p>
-                                                </div>
-                                              </Label>
-                                            </div>
-
-                                            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-discord-dark/30 transition-colors">
-                                              <RadioGroupItem
-                                                value="world-records"
-                                                id={`wr-${channel.id}-${game.id}`}
-                                                className="border-gray-500 text-discord-blurple data-[state=checked]:border-discord-blurple"
-                                              />
-                                              <Label
-                                                htmlFor={`wr-${channel.id}-${game.id}`}
-                                                className="flex items-center cursor-pointer flex-1"
-                                              >
-                                                <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
-                                                <div>
-                                                  <span className="text-sm font-medium text-gray-200">World Records Only</span>
-                                                  <p className="text-xs text-gray-400">Get notified only for new world records</p>
-                                                </div>
-                                              </Label>
-                                            </div>
-                                          </RadioGroup>
-                                        </div>
-                                      )}
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="text-gray-400 hover:text-red-500 h-8 w-8 p-0"
+                                          onClick={() => handleUnlinkGame(channel.id, game.gameName)}
+                                          disabled={isUnlinkingGame === `${channel.id}-${game.gameName}`}
+                                        >
+                                          {isUnlinkingGame === `${channel.id}-${game.gameName}` ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                          ) : (
+                                            <X className="w-4 h-4" />
+                                          )}
+                                        </Button>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
