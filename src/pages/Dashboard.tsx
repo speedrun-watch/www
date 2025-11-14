@@ -760,157 +760,154 @@ const Dashboard = () => {
                     </Button>
 
                     <h1 className="text-2xl font-bold flex items-center">
-                      {allGuilds.find(g => g.id === selectedGuildId)?.name}
+                      {allGuilds.find(g => g.id === selectedGuildId)?.name}'s Notification Channels
                     </h1>
                   </div>
 
-                  <div className="bg-discord-dark rounded-lg p-4 mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Notification Channels</h2>
-                    {isFetchingChannels ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="text-center">
-                          <Loader2 className="w-8 h-8 text-discord-blurple mx-auto mb-3 animate-spin" />
-                          <p className="text-gray-400">Loading channels...</p>
-                        </div>
+                  {isFetchingChannels ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="text-center">
+                        <Loader2 className="w-8 h-8 text-discord-blurple mx-auto mb-3 animate-spin" />
+                        <p className="text-gray-400">Loading channels...</p>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {channels
-                          .filter(channel => channel.type === 0) // Only show text channels
-                          .map(channel => (
-                            <div key={channel.id} className="bg-discord-darker rounded-lg p-4">
-                              <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-medium flex items-center">
-                                  <MessageSquare className="w-5 h-5 mr-2 text-discord-blurple" />
-                                  #{channel.name}
-                                </h3>
-                                {activeChannelId !== channel.id && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="bg-transparent border-white/10 text-white hover:bg-white/5"
-                                    onClick={() => setActiveChannelId(channel.id)}
-                                  >
-                                    <Plus className="w-4 h-4 mr-1" />
-                                    Link Game
-                                  </Button>
-                                )}
-                              </div>
-
-                              {activeChannelId === channel.id && (
-                                <div className="mb-4 bg-discord-dark/50 p-3 rounded-md">
-                                  <div className="flex items-center mb-2">
-                                    <input
-                                      type="text"
-                                      placeholder="Search speedrun.com games..."
-                                      className="bg-discord-darker flex-1 border border-gray-700 rounded-md py-1 px-3 text-white focus:border-discord-blurple focus:outline-none"
-                                      value={gameSearchTerm}
-                                      onChange={(e) => setGameSearchTerm(e.target.value)}
-                                    />
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="ml-2 text-gray-400 hover:text-white"
-                                      onClick={() => setActiveChannelId(null)}
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                  {gameSearchTerm && (
-                                    <div className="max-h-40 overflow-y-auto bg-discord-darker rounded-md mt-2">
-                                      {isSearching ? (
-                                        <div className="p-2 text-gray-400">Searching...</div>
-                                      ) : searchResults.length > 0 ? (
-                                        searchResults.map(game => (
-                                          <div
-                                            key={game.id}
-                                            className="p-2 hover:bg-discord-dark/70 cursor-pointer text-gray-300 hover:text-white flex items-center justify-between"
-                                            onClick={() => {
-                                              if (!isLinkingGame) {
-                                                handleLinkGame(channel.id, game.id);
-                                              }
-                                            }}
-                                          >
-                                            <span>{game.name}</span>
-                                            {isLinkingGame && (
-                                              <Loader2 className="h-4 w-4 animate-spin text-discord-blurple" />
-                                            )}
-                                          </div>
-                                        ))
-                                      ) : (
-                                        <div className="p-2 text-gray-400">No games found</div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
-                              {(!channel.games || channel.games.length === 0) ? (
-                                <p className="text-gray-400 text-sm italic">No games linked to this channel</p>
-                              ) : (
-                                <div className="space-y-2">
-                                  {channel.games.map(game => (
-                                    <div key={game.id} className="p-3 bg-discord-dark/30 rounded-md">
-                                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                                        <div className="flex items-center space-x-3">
-                                          <Gamepad className="w-4 h-4 text-discord-green flex-shrink-0" />
-                                          <span className="text-gray-200">{game.gameName}</span>
-                                        </div>
-
-                                        <div className="flex items-center space-x-2">
-                                          <Select
-                                            value={getCurrentNotificationSetting(channel.id, game.id)}
-                                            onValueChange={(value) => handleUpdateNotificationSettings(channel.id, game.id, value)}
-                                          >
-                                            <SelectTrigger className="w-full lg:w-[220px] bg-discord-dark border-gray-600 text-gray-200">
-                                              <SelectValue placeholder="Select notification type" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-discord-dark border-gray-600">
-                                              <SelectItem value="any" className="text-gray-200 focus:bg-discord-darker focus:text-white">
-                                                <div className="flex items-center space-x-2">
-                                                  <Zap className="w-4 h-4 text-purple-400" />
-                                                  <span>Any New Run</span>
-                                                </div>
-                                              </SelectItem>
-                                              <SelectItem value="top-3" className="text-gray-200 focus:bg-discord-darker focus:text-white">
-                                                <div className="flex items-center space-x-2">
-                                                  <Medal className="w-4 h-4 text-blue-400" />
-                                                  <span>Top 3 Placements</span>
-                                                </div>
-                                              </SelectItem>
-                                              <SelectItem value="world-records" className="text-gray-200 focus:bg-discord-darker focus:text-white">
-                                                <div className="flex items-center space-x-2">
-                                                  <Trophy className="w-4 h-4 text-yellow-500" />
-                                                  <span>World Records Only</span>
-                                                </div>
-                                              </SelectItem>
-                                            </SelectContent>
-                                          </Select>
-
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-gray-400 hover:text-red-500 h-8 w-8 p-0 flex-shrink-0"
-                                            onClick={() => handleUnlinkGame(channel.id, game.gameName)}
-                                            disabled={isUnlinkingGame === `${channel.id}-${game.gameName}`}
-                                          >
-                                            {isUnlinkingGame === `${channel.id}-${game.gameName}` ? (
-                                              <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                              <X className="w-4 h-4" />
-                                            )}
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {channels
+                        .filter(channel => channel.type === 0) // Only show text channels
+                        .map(channel => (
+                          <div key={channel.id} className="bg-discord-dark rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-lg font-medium flex items-center">
+                                <MessageSquare className="w-5 h-5 mr-2 text-discord-blurple" />
+                                #{channel.name}
+                              </h3>
+                              {activeChannelId !== channel.id && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-transparent border-white/10 text-white hover:bg-white/5"
+                                  onClick={() => setActiveChannelId(channel.id)}
+                                >
+                                  <Plus className="w-4 h-4 mr-1" />
+                                  Link Game
+                                </Button>
                               )}
                             </div>
-                          ))}
-                      </div>
-                    )}
-                  </div>
+
+                            {activeChannelId === channel.id && (
+                              <div className="mb-4 bg-discord-dark/50 p-3 rounded-md">
+                                <div className="flex items-center mb-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Search speedrun.com games..."
+                                    className="bg-discord-darker flex-1 border border-gray-700 rounded-md py-1 px-3 text-white focus:border-discord-blurple focus:outline-none"
+                                    value={gameSearchTerm}
+                                    onChange={(e) => setGameSearchTerm(e.target.value)}
+                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="ml-2 text-gray-400 hover:text-white"
+                                    onClick={() => setActiveChannelId(null)}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                                {gameSearchTerm && (
+                                  <div className="max-h-40 overflow-y-auto bg-discord-darker rounded-md mt-2">
+                                    {isSearching ? (
+                                      <div className="p-2 text-gray-400">Searching...</div>
+                                    ) : searchResults.length > 0 ? (
+                                      searchResults.map(game => (
+                                        <div
+                                          key={game.id}
+                                          className="p-2 hover:bg-discord-dark/70 cursor-pointer text-gray-300 hover:text-white flex items-center justify-between"
+                                          onClick={() => {
+                                            if (!isLinkingGame) {
+                                              handleLinkGame(channel.id, game.id);
+                                            }
+                                          }}
+                                        >
+                                          <span>{game.name}</span>
+                                          {isLinkingGame && (
+                                            <Loader2 className="h-4 w-4 animate-spin text-discord-blurple" />
+                                          )}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="p-2 text-gray-400">No games found</div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {(!channel.games || channel.games.length === 0) ? (
+                              <p className="text-gray-400 text-sm italic">No games linked to this channel</p>
+                            ) : (
+                              <div className="space-y-2">
+                                {channel.games.map(game => (
+                                  <div key={game.id} className="p-3 bg-discord-dark/30 rounded-md">
+                                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                                      <div className="flex items-center space-x-3">
+                                        <Gamepad className="w-4 h-4 text-discord-green flex-shrink-0" />
+                                        <span className="text-gray-200">{game.gameName}</span>
+                                      </div>
+
+                                      <div className="flex items-center space-x-2">
+                                        <Select
+                                          value={getCurrentNotificationSetting(channel.id, game.id)}
+                                          onValueChange={(value) => handleUpdateNotificationSettings(channel.id, game.id, value)}
+                                        >
+                                          <SelectTrigger className="w-full lg:w-[220px] bg-discord-dark border-gray-600 text-gray-200">
+                                            <SelectValue placeholder="Select notification type" />
+                                          </SelectTrigger>
+                                          <SelectContent className="bg-discord-dark border-gray-600">
+                                            <SelectItem value="any" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                              <div className="flex items-center space-x-2">
+                                                <Zap className="w-4 h-4 text-purple-400" />
+                                                <span>Any New Run</span>
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="top-3" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                              <div className="flex items-center space-x-2">
+                                                <Medal className="w-4 h-4 text-blue-400" />
+                                                <span>Top 3 Placements</span>
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="world-records" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                              <div className="flex items-center space-x-2">
+                                                <Trophy className="w-4 h-4 text-yellow-500" />
+                                                <span>World Records Only</span>
+                                              </div>
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="text-gray-400 hover:text-red-500 h-8 w-8 p-0 flex-shrink-0"
+                                          onClick={() => handleUnlinkGame(channel.id, game.gameName)}
+                                          disabled={isUnlinkingGame === `${channel.id}-${game.gameName}`}
+                                        >
+                                          {isUnlinkingGame === `${channel.id}-${game.gameName}` ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                          ) : (
+                                            <X className="w-4 h-4" />
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
               )}
 

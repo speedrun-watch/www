@@ -114,7 +114,7 @@
   ::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* For Firefox */
   * {
     scrollbar-width: none;

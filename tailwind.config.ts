@@ -124,11 +124,11 @@ export default {
 					'50%': { opacity: '0.8' }
 				},
 				'rotate-glow': {
-					'0%': { 
+					'0%': {
 						transform: 'rotate(0deg)',
 						filter: 'drop-shadow(0 0 8px rgba(88, 101, 242, 0.8))'
 					},
-					'100%': { 
+					'100%': {
 						transform: 'rotate(360deg)',
 						filter: 'drop-shadow(0 0 12px rgba(88, 101, 242, 0.9))'
 					}
