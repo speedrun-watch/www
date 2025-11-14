@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -14,26 +13,17 @@ import {
   Bell,
   Gamepad,
   Settings,
-  LogOut,
-  User,
   Server,
-  Home,
   Shield,
   ShieldCheck,
-  Users,
   X,
   Plus,
-  Clock,
-  Link as LinkIcon,
   MessageSquare,
   ArrowLeft,
   Trophy,
   Medal,
-  Flag,
   Zap,
-  FileCheck,
   ExternalLink,
-  UserCheck,
   Copy,
   Bot,
   Check,
@@ -61,7 +51,7 @@ interface DiscordGuild {
 interface Guilds {
   owner: DiscordGuild[];
   admin: DiscordGuild[];
-  member: DiscordGuild[];
+  moderator: DiscordGuild[];
 }
 
 interface Game {
@@ -175,7 +165,7 @@ const Dashboard = () => {
   const [guilds, setGuilds] = useState<Guilds>({
     owner: [],
     admin: [],
-    member: []
+    moderator: []
   });
   const [channels, setChannels] = useState<DiscordChannel[]>([]);
   const [searchResults, setSearchResults] = useState<{ id: string, name: string }[]>([]);
@@ -201,7 +191,7 @@ const Dashboard = () => {
         const processedGuilds: Guilds = {
           owner: ownedGuilds.filter(guild => guild.owner),
           admin: ownedGuilds.filter(guild => !guild.owner && (guild.permissions & 0x8) === 0x8), // Check for ADMINISTRATOR permission
-          member: ownedGuilds.filter(guild => !guild.owner && (guild.permissions & 0x8) !== 0x8)
+          moderator: ownedGuilds.filter(guild => !guild.owner && (guild.permissions & 0x8) !== 0x8 && (guild.permissions & 0x10) === 0x10) // Check for MANAGE_CHANNELS permission
         };
 
         setGuilds(processedGuilds);
@@ -244,7 +234,7 @@ const Dashboard = () => {
   const allGuilds = [
     ...guilds.owner,
     ...guilds.admin,
-    ...guilds.member
+    ...guilds.moderator
   ];
 
   // Format guild icon URL
@@ -674,12 +664,18 @@ const Dashboard = () => {
               {/* Original guilds tab content */}
               {activeTab === "guilds" && !selectedGuildId && (
                 <div>
-                  <h1 className="text-2xl font-bold mb-6">
+                  <h1 className="text-2xl font-bold mb-2">
                     {activeGuildCategory === "all" && "All Discord Guilds"}
-                    {activeGuildCategory === "owner" && "Owned Discord Guilds"}
+                    {activeGuildCategory === "owner" && "Owner Discord Guilds"}
                     {activeGuildCategory === "admin" && "Admin Discord Guilds"}
-                    {activeGuildCategory === "member" && "Member Discord Guilds"}
+                    {activeGuildCategory === "moderator" && "Moderator Discord Guilds"}
                   </h1>
+                  <p className="text-gray-400 text-sm mb-6">
+                    {activeGuildCategory === "all" && "Servers where the bot is installed"}
+                    {activeGuildCategory === "owner" && "Servers where the bot is installed and you are the owner"}
+                    {activeGuildCategory === "admin" && "Servers where the bot is installed and you have administrator permissions"}
+                    {activeGuildCategory === "moderator" && "Servers where the bot is installed and you have manage channels permissions"}
+                  </p>
 
                   {isFetchingGuilds ? (
                     <div className="flex items-center justify-center py-8">
@@ -693,7 +689,7 @@ const Dashboard = () => {
                       {(activeGuildCategory === "all" ? allGuilds :
                         activeGuildCategory === "owner" ? guilds.owner :
                           activeGuildCategory === "admin" ? guilds.admin :
-                            guilds.member
+                            guilds.moderator
                       ).map(guild => (
                         <div key={guild.id} className="bg-discord-dark rounded-lg p-4 hover:bg-discord-dark/80 transition-colors">
                           <div className="flex items-center space-x-3">
@@ -723,9 +719,9 @@ const Dashboard = () => {
                                   <span className="hidden xl:ml-1 xl:block text-sm text-blue-400">Admin</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center bg-gray-400/10 border border-gray-400/20 rounded-full px-2 py-1">
-                                  <Users className="w-4 h-4 text-gray-400" />
-                                  <span className="hidden xl:ml-1 xl:block text-sm text-gray-400">Member</span>
+                                <div className="flex items-center bg-purple-400/10 border border-purple-400/20 rounded-full px-2 py-1">
+                                  <ShieldCheck className="w-4 h-4 text-purple-400" />
+                                  <span className="hidden xl:ml-1 xl:block text-sm text-purple-400">Moderator</span>
                                 </div>
                               )}
                               <Button
@@ -767,83 +763,6 @@ const Dashboard = () => {
                       {allGuilds.find(g => g.id === selectedGuildId)?.name}
                     </h1>
                   </div>
-
-                  {/* Moderators Section */}
-                  {/* <div className="bg-discord-dark rounded-lg p-4 mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold">Moderators</h2>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-discord-blurple text-discord-blurple hover:bg-discord-blurple hover:text-white"
-                      onClick={() => setShowAddModerator(!showAddModerator)}
-                    >
-                      {showAddModerator ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-                      {showAddModerator ? "Cancel" : "Add Moderator"}
-                    </Button>
-                  </div>
-
-                  {showAddModerator && (
-                    <div className="bg-discord-darker p-4 rounded-md mb-4">
-                      <div className="mb-4">
-                        <p className="text-sm text-gray-300 mb-2">
-                          Moderators have the same abilities as you for managing game notifications,
-                          but cannot remove you (the owner) or remove the bot entirely from the guild.
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <div className="flex-1">
-                          <select className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none">
-                            <option value="">Select type...</option>
-                            <option value="user">Discord User</option>
-                            <option value="role">Discord Role</option>
-                          </select>
-                        </div>
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            placeholder="Search users or roles..."
-                            className="w-full bg-discord-dark border border-gray-700 rounded-md py-2 px-3 text-white focus:border-discord-blurple focus:outline-none"
-                          />
-                        </div>
-                        <Button className="bg-discord-blurple hover:bg-discord-blurple/90 text-white">
-                          Add
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    {mockModerators[selectedGuildId as keyof typeof mockModerators]?.map(mod => (
-                      <div key={mod.id} className="flex items-center justify-between bg-discord-darker p-2 rounded-md">
-                        <div className="flex items-center">
-                          {mod.type === "user" ? (
-                            <>
-                              <Avatar className="w-6 h-6 mr-2">
-                                <AvatarFallback className="bg-discord-blurple/60 text-xs">
-                                  {mod.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{mod.name}</span>
-                            </>
-                          ) : (
-                            <>
-                              <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: mod.color }}></div>
-                              <span className="font-medium">@{mod.name}</span>
-                            </>
-                          )}
-                        </div>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-500">
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {(!mockModerators[selectedGuildId as keyof typeof mockModerators] ||
-                      mockModerators[selectedGuildId as keyof typeof mockModerators].length === 0) && (
-                        <p className="text-gray-400 text-sm italic">No moderators added yet</p>
-                      )}
-                  </div>
-                </div> */}
 
                   <div className="bg-discord-dark rounded-lg p-4 mb-6">
                     <h2 className="text-xl font-semibold mb-4">Notification Channels</h2>

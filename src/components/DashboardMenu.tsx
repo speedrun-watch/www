@@ -23,7 +23,7 @@ interface DashboardMenuProps {
     guilds: {
         owner: any[];
         admin: any[];
-        member: any[];
+        moderator: any[];
     };
 }
 
@@ -108,18 +108,18 @@ const DashboardMenu = ({
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className={`w-full justify-start ${activeTab === "guilds" && activeGuildCategory === "member"
+                                className={`w-full justify-start ${activeTab === "guilds" && activeGuildCategory === "moderator"
                                     ? "bg-discord-blurple/20 text-white"
                                     : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
                                     }`}
                                 onClick={() => {
                                     setActiveTab("guilds");
-                                    setActiveGuildCategory("member");
+                                    setActiveGuildCategory("moderator");
                                     setSelectedGuildId(null);
                                 }}
                             >
                                 <Users className="mr-2 h-4 w-4" />
-                                Member ({guilds.member.length})
+                                Moderator ({guilds.moderator.length})
                             </Button>
                         </div>
                     </div>
