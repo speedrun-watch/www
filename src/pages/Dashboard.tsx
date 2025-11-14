@@ -931,55 +931,57 @@ const Dashboard = () => {
                               ) : (
                                 <div className="space-y-2">
                                   {channel.games.map(game => (
-                                    <div key={game.id} className="flex items-center justify-between p-3 bg-discord-dark/30 rounded-md">
-                                      <div className="flex items-center space-x-3">
-                                        <Gamepad className="w-4 h-4 text-discord-green flex-shrink-0" />
-                                        <span className="text-gray-200">{game.gameName}</span>
-                                      </div>
+                                    <div key={game.id} className="p-3 bg-discord-dark/30 rounded-md">
+                                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                                        <div className="flex items-center space-x-3">
+                                          <Gamepad className="w-4 h-4 text-discord-green flex-shrink-0" />
+                                          <span className="text-gray-200">{game.gameName}</span>
+                                        </div>
 
-                                      <div className="flex items-center space-x-2">
-                                        <Select
-                                          value={getCurrentNotificationSetting(channel.id, game.id)}
-                                          onValueChange={(value) => handleUpdateNotificationSettings(channel.id, game.id, value)}
-                                        >
-                                          <SelectTrigger className="w-[220px] bg-discord-dark border-gray-600 text-gray-200">
-                                            <SelectValue placeholder="Select notification type" />
-                                          </SelectTrigger>
-                                          <SelectContent className="bg-discord-dark border-gray-600">
-                                            <SelectItem value="any" className="text-gray-200 focus:bg-discord-darker focus:text-white">
-                                              <div className="flex items-center space-x-2">
-                                                <Zap className="w-4 h-4 text-purple-400" />
-                                                <span>Any New Run</span>
-                                              </div>
-                                            </SelectItem>
-                                            <SelectItem value="top-3" className="text-gray-200 focus:bg-discord-darker focus:text-white">
-                                              <div className="flex items-center space-x-2">
-                                                <Medal className="w-4 h-4 text-blue-400" />
-                                                <span>Top 3 Placements</span>
-                                              </div>
-                                            </SelectItem>
-                                            <SelectItem value="world-records" className="text-gray-200 focus:bg-discord-darker focus:text-white">
-                                              <div className="flex items-center space-x-2">
-                                                <Trophy className="w-4 h-4 text-yellow-500" />
-                                                <span>World Records Only</span>
-                                              </div>
-                                            </SelectItem>
-                                          </SelectContent>
-                                        </Select>
+                                        <div className="flex items-center space-x-2">
+                                          <Select
+                                            value={getCurrentNotificationSetting(channel.id, game.id)}
+                                            onValueChange={(value) => handleUpdateNotificationSettings(channel.id, game.id, value)}
+                                          >
+                                            <SelectTrigger className="w-full lg:w-[220px] bg-discord-dark border-gray-600 text-gray-200">
+                                              <SelectValue placeholder="Select notification type" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-discord-dark border-gray-600">
+                                              <SelectItem value="any" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                                <div className="flex items-center space-x-2">
+                                                  <Zap className="w-4 h-4 text-purple-400" />
+                                                  <span>Any New Run</span>
+                                                </div>
+                                              </SelectItem>
+                                              <SelectItem value="top-3" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                                <div className="flex items-center space-x-2">
+                                                  <Medal className="w-4 h-4 text-blue-400" />
+                                                  <span>Top 3 Placements</span>
+                                                </div>
+                                              </SelectItem>
+                                              <SelectItem value="world-records" className="text-gray-200 focus:bg-discord-darker focus:text-white">
+                                                <div className="flex items-center space-x-2">
+                                                  <Trophy className="w-4 h-4 text-yellow-500" />
+                                                  <span>World Records Only</span>
+                                                </div>
+                                              </SelectItem>
+                                            </SelectContent>
+                                          </Select>
 
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          className="text-gray-400 hover:text-red-500 h-8 w-8 p-0"
-                                          onClick={() => handleUnlinkGame(channel.id, game.gameName)}
-                                          disabled={isUnlinkingGame === `${channel.id}-${game.gameName}`}
-                                        >
-                                          {isUnlinkingGame === `${channel.id}-${game.gameName}` ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                          ) : (
-                                            <X className="w-4 h-4" />
-                                          )}
-                                        </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-gray-400 hover:text-red-500 h-8 w-8 p-0 flex-shrink-0"
+                                            onClick={() => handleUnlinkGame(channel.id, game.gameName)}
+                                            disabled={isUnlinkingGame === `${channel.id}-${game.gameName}`}
+                                          >
+                                            {isUnlinkingGame === `${channel.id}-${game.gameName}` ? (
+                                              <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                              <X className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
                                       </div>
                                     </div>
                                   ))}
