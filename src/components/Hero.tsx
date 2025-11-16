@@ -91,8 +91,8 @@ const Hero = () => {
               </div>
               <div className="w-full border-l-4 border-yellow-500/70 pl-3">
                 <div className="flex items-center mb-1">
-                  <span className="font-medium text-white mr-2">SRC</span>
-                  <span className="bg-blue-600/90 text-xs font-medium px-2 py-0.5 rounded text-white">WORLD RECORD</span>
+                  <span className="font-medium text-white mr-2">speedrun.watch</span>
+                  <span className="bg-blue-600/90 text-xs font-medium px-2 py-0.5 rounded text-white">APP</span>
                   <span className="text-gray-400 text-xs ml-2">Today at 18:22</span>
                 </div>
                 <div className="mb-2">
