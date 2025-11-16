@@ -133,4 +133,11 @@
   .highlight-item {
     @apply transition-all duration-300 cursor-pointer hover:scale-105;
   }
+
+  /* Prevent blue tap highlight on mobile */
+  .heart-no-tap {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    touch-action: manipulation;
+  }
 }

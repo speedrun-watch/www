@@ -133,6 +133,14 @@ export default {
 						filter: 'drop-shadow(0 0 12px rgba(88, 101, 242, 0.9))'
 					}
 				}
+				,
+				'heart-beat': {
+					'0%': { transform: 'scale(1)' },
+					'14%': { transform: 'scale(1.25)' },
+					'28%': { transform: 'scale(1)' },
+					'42%': { transform: 'scale(1.12)' },
+					'70%': { transform: 'scale(1)' }
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -145,6 +153,8 @@ export default {
 				'float': 'float 6s ease-in-out infinite',
 				'pulse-light': 'pulse-light 3s ease-in-out infinite',
 				'rotate-glow': 'rotate-glow 20s linear infinite'
+				,
+				'heart-beat': 'heart-beat 0.9s cubic-bezier(.215,.61,.355,1) both'
 			}
 		}
 	},
