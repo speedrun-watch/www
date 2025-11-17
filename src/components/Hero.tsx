@@ -62,15 +62,6 @@ const Hero = () => {
               <MessageSquare className="mr-2 h-5 w-5" />
               Add to Discord
             </Button>
-            {/* <Button
-              variant="outline"
-              className="bg-transparent border-white/10 text-white hover:bg-white/5 w-full sm:w-auto px-6 py-5"
-              size="lg"
-              onClick={scrollToFeatures}
-            >
-              <Gamepad className="mr-2 h-5 w-5" />
-              See Features
-            </Button> */}
           </div>
         </div>
 
@@ -84,12 +75,14 @@ const Hero = () => {
           </div>
           <div className="p-4 bg-discord-darker/90 text-white">
             <div className="flex items-start mb-6">
-              <div className="w-10 h-10 rounded-full bg-green-500/80 flex items-center justify-center mr-3 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z" />
-                </svg>
+              <div className="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                <img
+                  src="/favicon-96x96.png"
+                  alt="speedrun.watch bot avatar"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
-              <div className="w-full border-l-4 border-yellow-500/70 pl-3">
+              <div className="w-full border-l-4 border-green-500/70 pl-3">
                 <div className="flex items-center mb-1">
                   <span className="font-medium text-white mr-2">speedrun.watch</span>
                   <span className="bg-blue-600/90 text-xs font-medium px-2 py-0.5 rounded text-white inline-flex items-center">
@@ -117,16 +110,16 @@ const Hero = () => {
                 </div>
                 <div className="grid grid-cols-3 gap-2 mb-4 text-sm">
                   <div>
-                    <div className="text-gray-400">Platform</div>
-                    <div>PC</div>
+                    <div className="text-gray-400">Type</div>
+                    <div>Full Game</div>
                   </div>
                   <div>
                     <div className="text-gray-400">Category</div>
                     <div>Any%</div>
                   </div>
                   <div>
-                    <div className="text-gray-400">Date</div>
-                    <div>August 23, 2023</div>
+                    <div className="text-gray-400">Place</div>
+                    <div>1st</div>
                   </div>
                 </div>
                 <div className="mb-3 relative rounded overflow-hidden">
@@ -146,15 +139,15 @@ const Hero = () => {
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="flex items-center bg-discord-dark/60 px-2 py-1 rounded-full">
                     <Heart className="w-3.5 h-3.5 text-red-400 mr-1.5" />
-                    <span className="text-xs">42</span>
+                    <span className="text-xs">4</span>
                   </div>
                   <div className="flex items-center bg-discord-dark/60 px-2 py-1 rounded-full">
                     <ThumbsUp className="w-3.5 h-3.5 text-blue-400 mr-1.5" />
-                    <span className="text-xs">21</span>
+                    <span className="text-xs">2</span>
                   </div>
                   <div className="flex items-center bg-discord-dark/60 px-2 py-1 rounded-full">
                     <Trophy className="w-3.5 h-3.5 text-yellow-400 mr-1.5" />
-                    <span className="text-xs">15</span>
+                    <span className="text-xs">1</span>
                   </div>
                 </div>
 
