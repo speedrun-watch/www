@@ -867,7 +867,19 @@ const Dashboard = () => {
                                         ) : (
                                           <Gamepad className="w-4 h-4 text-discord-green flex-shrink-0" />
                                         )}
-                                        <span className="text-gray-200">{game.gameName}</span>
+                                        {game.weblink ? (
+                                          <a
+                                            href={game.weblink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-gray-200 no-underline hover:underline"
+                                            style={{ textDecoration: 'none' }}
+                                          >
+                                            {game.gameName}
+                                          </a>
+                                        ) : (
+                                          <span className="text-gray-200">{game.gameName}</span>
+                                        )}
                                       </div>
 
                                       <div className="flex items-center space-x-2">
