@@ -90,7 +90,6 @@ const TermsOfService = () => {
                                 </p>
                                 <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
                                     <li>Discord server IDs and channel IDs where the Bot is installed</li>
-                                    <li>User IDs for authentication and authorization</li>
                                     <li>Game and notification preferences configured by server administrators</li>
                                 </ul>
                                 <p className="mt-2">

@@ -69,13 +69,11 @@ const PrivacyPolicy = () => {
                                 <ul className="list-disc list-inside ml-4 space-y-1">
                                     <li>Game preferences (which games are linked to which channels)</li>
                                     <li>Notification settings (what types of notifications to send)</li>
-                                    <li>User authentication tokens (encrypted)</li>
                                 </ul>
 
                                 <h3 className="text-xl font-semibold text-white mb-2 mt-4">2.4 Usage Information</h3>
                                 <p className="mb-2">We may collect:</p>
                                 <ul className="list-disc list-inside ml-4 space-y-1">
-                                    <li>Bot commands executed</li>
                                     <li>Dashboard access logs</li>
                                     <li>Error logs and diagnostic information</li>
                                 </ul>
