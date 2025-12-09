@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
+import { isTokenValid, logout } from "@/lib/auth";
 
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID;
 const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
@@ -44,15 +45,20 @@ const AuthStatus = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
-    localStorage.removeItem("exp");
+    logout();
     setAuthStatus({ user: null });
     navigate("/");
   };
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
+      if (!isTokenValid()) {
+        logout();
+        setAuthStatus({ user: null });
+        setLoading(false);
+        return;
+      }
+
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         setAuthStatus({ user });

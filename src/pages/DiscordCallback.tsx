@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, CheckCircle, AlertCircle } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/api";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const CALLBACK_PATH = import.meta.env.VITE_CALLBACK_PATH;
@@ -21,13 +21,10 @@ const DiscordCallback = () => {
 
         if (code) {
             // Send the code to the API
-            const apiUrl = `${API_ENDPOINT}/${CALLBACK_PATH}`;
-
-            console.log("API URL:", apiUrl);
             console.log("Code:", code);
 
-            axios
-                .post(apiUrl, { code })
+            api
+                .post(`/${CALLBACK_PATH}`, { code })
                 .then((response) => {
                     const { token, user, exp } = response.data;
 

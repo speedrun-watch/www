@@ -34,7 +34,8 @@ import {
 import Footer from "@/components/Footer";
 import AuthStatus from "@/components/AuthStatus";
 import DashboardMenu from "@/components/DashboardMenu";
-import axios from "axios";
+import api from "@/lib/api";
+import { isTokenValid, logout } from "@/lib/auth";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -58,6 +59,9 @@ interface Guilds {
 interface Game {
   id: string;
   gameName: string;
+  names: {
+    international: string;
+  }
   srcGameId: string;
   abbreviation: string;
   weblink: string;
@@ -162,7 +166,6 @@ const Dashboard = () => {
   const [selectedGuildId, setSelectedGuildId] = useState<string | null>(null);
   const [gameSearchTerm, setGameSearchTerm] = useState("");
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
-  const [showAddModerator, setShowAddModerator] = useState(false);
   const [notificationCopied, setNotificationCopied] = useState(false);
   const [guilds, setGuilds] = useState<Guilds>({
     owner: [],
@@ -170,7 +173,7 @@ const Dashboard = () => {
     moderator: []
   });
   const [channels, setChannels] = useState<DiscordChannel[]>([]);
-  const [searchResults, setSearchResults] = useState<{ id: string, name: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<Game[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLinkingGame, setIsLinkingGame] = useState<string | null>(null);
   const [isUnlinkingGame, setIsUnlinkingGame] = useState<string | null>(null);
@@ -179,19 +182,16 @@ const Dashboard = () => {
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Redirect to login if not signed in
-    if (!localStorage.getItem("jwt")) {
+    // Redirect to login if not signed in or token expired
+    if (!isTokenValid()) {
+      logout();
       navigate("/login", { replace: true });
       return;
     }
     const fetchGuilds = async () => {
       setIsFetchingGuilds(true);
       try {
-        const response = await axios.get(`${API_ENDPOINT}/api/user/guilds`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        });
+        const response = await api.get(`/api/user/guilds`);
 
         // Process the guilds into the correct categories
         const ownedGuilds = response.data.ownedGuilds || [];
@@ -218,13 +218,8 @@ const Dashboard = () => {
 
       setIsFetchingChannels(true);
       try {
-        const response = await axios.get<GuildChannelsResponse>(
-          `${API_ENDPOINT}/api/guilds/${selectedGuildId}/channels`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-            },
-          },
+        const response = await api.get<GuildChannelsResponse>(
+          `/api/guilds/${selectedGuildId}/channels`
         );
         setChannels(response.data.guildChannels);
       } catch (error) {
@@ -286,55 +281,19 @@ const Dashboard = () => {
       const selectedGame = searchResults.find(g => g.id === gameId);
       if (!selectedGame) return;
 
-      await axios.post(
-        `${API_ENDPOINT}/api/guilds/${selectedGuildId}/channels/${channelId}/games/${selectedGame.name}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        }
+      await api.post(
+        `/api/guilds/${selectedGuildId}/channels/${channelId}/games/${selectedGame.id}`,
+        {}
       );
 
       // Update the channels state with the new game
       setChannels(prevChannels =>
         prevChannels.map(channel => {
           if (channel.id === channelId) {
-            const newGame: Game = {
-              id: gameId,
-              gameName: selectedGame.name,
-              srcGameId: gameId,
-              abbreviation: "",
-              weblink: "",
-              discord: "",
-              released: 0,
-              releaseDate: new Date().toISOString(),
-              ruleset: {
-                showMilliseconds: false,
-                requireVerification: false,
-                requireVideo: false,
-                runTimes: [],
-                emulatorsAllowed: false,
-                defaultTime: ""
-              },
-              assets: {
-                coverSmall: { uri: "" },
-                coverMedium: { uri: "" },
-                coverLarge: { uri: "" },
-                coverTiny: { uri: "" },
-                icon: { uri: "" },
-                logo: { uri: null },
-                background: { uri: null },
-                foreground: { uri: null },
-                trophy1st: { uri: null },
-                trophy2nd: { uri: null },
-                trophy3rd: { uri: null },
-                trophy4th: { uri: null }
-              }
-            };
+            selectedGame.gameName = selectedGame.names.international;
             return {
               ...channel,
-              games: [...(channel.games || []), newGame]
+              games: [...(channel.games || []), selectedGame]
             };
           }
           return channel;
@@ -357,13 +316,8 @@ const Dashboard = () => {
     const unlinkKey = `${channelId}-${gameName}`;
     setIsUnlinkingGame(unlinkKey);
     try {
-      await axios.delete(
-        `${API_ENDPOINT}/api/guilds/${selectedGuildId}/channels/${channelId}/games/${gameName}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        }
+      await api.delete(
+        `/api/guilds/${selectedGuildId}/channels/${channelId}/games/${gameName}`
       );
 
       // Update the channels state to remove the unlinked game
@@ -406,15 +360,10 @@ const Dashboard = () => {
 
     try {
       // Make API call to update the setting on the backend
-      await axios.patch(
-        `${API_ENDPOINT}/api/guilds/${selectedGuildId}/channels/${channelId}/games/${gameId}/notifications`,
+      await api.patch(
+        `/api/guilds/${selectedGuildId}/channels/${channelId}/games/${gameId}/notifications`,
         {
           notificationType: setting
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
         }
       );
 
@@ -515,16 +464,9 @@ const Dashboard = () => {
 
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const response = await axios.get(`${API_ENDPOINT}/api/search/games/${gameSearchTerm}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        });
+        const response = await api.get(`/api/search/games/${gameSearchTerm}`);
 
-        setSearchResults(response.data.games.data.map((game: any) => ({
-          id: game.id,
-          name: game.names.international
-        })));
+        setSearchResults(response.data.games.data);
       } catch (error) {
         console.error("Error searching games:", error);
         setSearchResults([]);
@@ -532,12 +474,6 @@ const Dashboard = () => {
         setIsSearching(false);
       }
     }, 500);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
   }, [gameSearchTerm]);
 
   return (
@@ -836,7 +772,7 @@ const Dashboard = () => {
                                             }
                                           }}
                                         >
-                                          <span>{game.name}</span>
+                                          <span>{game.names.international}</span>
                                           {isLinkingGame === game.id && (
                                             <Loader2 className="h-4 w-4 animate-spin text-discord-blurple" />
                                           )}
