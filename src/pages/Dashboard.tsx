@@ -579,7 +579,7 @@ const Dashboard = () => {
     const game = channel?.games?.find(g => g.id === gameId);
     const ids = game?.categoryIds || [];
     if (ids.length === 0) return "All";
-    return `${ids.length} selected`;
+    return `${ids.length}`;
   };
 
   // Handle game search with debounce
@@ -982,17 +982,15 @@ const Dashboard = () => {
                                         </Select>
 
                                         <button
-                                          className="flex h-10 w-full lg:w-[220px] items-center justify-between rounded-md border border-gray-600 bg-discord-dark px-3 py-2 text-sm text-gray-200 hover:bg-discord-dark/80 transition-colors"
+                                          className="flex h-8 items-center gap-1.5 rounded-md border border-gray-600 bg-discord-dark px-2.5 text-xs text-gray-200 hover:bg-discord-dark/80 transition-colors"
                                           onClick={() => handleToggleCategoryPicker(channel.id, game.id)}
                                         >
-                                          <div className="flex items-center space-x-2">
-                                            <Filter className="w-4 h-4 text-gray-400" />
-                                            <span>Categories: {getCategoryLabel(channel.id, game.id)}</span>
-                                          </div>
+                                          <Filter className="w-3.5 h-3.5 text-gray-400" />
+                                          <span>Categories: {getCategoryLabel(channel.id, game.id)}</span>
                                           {expandedCategoryGame === `${channel.id}-${game.id}` ? (
-                                            <ChevronUp className="h-4 w-4 opacity-50" />
+                                            <ChevronUp className="h-3.5 w-3.5 opacity-50" />
                                           ) : (
-                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                            <ChevronDown className="h-3.5 w-3.5 opacity-50" />
                                           )}
                                         </button>
 
@@ -1014,7 +1012,7 @@ const Dashboard = () => {
 
                                     {/* Category filter picker */}
                                     {expandedCategoryGame === `${channel.id}-${game.id}` && (
-                                      <div className="mt-3 p-3 bg-discord-darker/50 rounded-md">
+                                      <div className="mt-3 p-3 rounded-md">
                                         {isFetchingCategories === game.id ? (
                                           <div className="flex items-center space-x-2 text-gray-400 text-sm">
                                             <Loader2 className="w-4 h-4 animate-spin" />
