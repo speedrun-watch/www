@@ -199,6 +199,7 @@ const Dashboard = () => {
   const saveTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
   const pendingValuesRef = useRef<Record<string, { notificationType: string; categoryIds: string[] }>>({});
   const lastConfirmedRef = useRef<Record<string, { notificationType: string; categoryIds: string[] }>>({});
+  const inFlightRef = useRef<Set<string>>(new Set());
   const selectedGuildIdRef = useRef(selectedGuildId);
   selectedGuildIdRef.current = selectedGuildId;
 
@@ -217,45 +218,61 @@ const Dashboard = () => {
     }
 
     saveTimersRef.current[key] = setTimeout(async () => {
+      delete saveTimersRef.current[key];
+
+      // If already saving for this key, skip — the finally block will re-trigger
+      if (inFlightRef.current.has(key)) return;
+
       const values = pendingValuesRef.current[key];
       if (!values) return;
+
+      inFlightRef.current.add(key);
 
       try {
         await api.patch(
           `/api/guilds/${selectedGuildIdRef.current}/channels/${channelId}/games/${gameId}/notifications`,
           values
         );
-        // Update confirmed state on success
         lastConfirmedRef.current[key] = { ...values };
+        // Only clear pending if no new change arrived while saving
+        if (pendingValuesRef.current[key] === values) {
+          delete pendingValuesRef.current[key];
+        }
       } catch (error) {
         console.error("Error saving game settings:", error);
-        // Revert to last confirmed state
-        const confirmed = lastConfirmedRef.current[key];
-        if (confirmed) {
-          setChannels(prev =>
-            prev.map(ch => {
-              if (ch.id === channelId && ch.games) {
-                return {
-                  ...ch,
-                  games: ch.games.map(g =>
-                    g.id === gameId
-                      ? { ...g, notificationType: confirmed.notificationType, categoryIds: confirmed.categoryIds }
-                      : g
-                  )
-                };
-              }
-              return ch;
-            })
-          );
+        // Only revert and toast if no new change is pending
+        if (pendingValuesRef.current[key] === values) {
+          const confirmed = lastConfirmedRef.current[key];
+          if (confirmed) {
+            setChannels(prev =>
+              prev.map(ch => {
+                if (ch.id === channelId && ch.games) {
+                  return {
+                    ...ch,
+                    games: ch.games.map(g =>
+                      g.id === gameId
+                        ? { ...g, notificationType: confirmed.notificationType, categoryIds: confirmed.categoryIds }
+                        : g
+                    )
+                  };
+                }
+                return ch;
+              })
+            );
+          }
+          delete pendingValuesRef.current[key];
+          toast({
+            title: "Failed to save settings",
+            description: "Your changes couldn't be saved. They have been reverted.",
+            variant: "destructive",
+          });
         }
-        toast({
-          title: "Failed to save settings",
-          description: "Your changes couldn't be saved. They have been reverted.",
-          variant: "destructive",
-        });
       } finally {
-        delete saveTimersRef.current[key];
-        delete pendingValuesRef.current[key];
+        inFlightRef.current.delete(key);
+        // If new changes arrived during the save, trigger another save
+        if (pendingValuesRef.current[key]) {
+          scheduleGameSettingsSave(channelId, gameId);
+        }
       }
     }, 600);
   }, []);
