@@ -912,22 +912,30 @@ const Dashboard = () => {
                                     {isSearching ? (
                                       <div className="p-2 text-gray-400">Searching on speedrun.com...</div>
                                     ) : searchResults.length > 0 ? (
-                                      searchResults.map(game => (
-                                        <div
-                                          key={game.id}
-                                          className="p-2 hover:bg-discord-dark/70 cursor-pointer text-gray-300 hover:text-white flex items-center justify-between"
-                                          onClick={() => {
-                                            if (!isLinkingGame) {
-                                              handleLinkGame(channel.id, game.id);
+                                      searchResults.map(game => {
+                                        const alreadyLinked = (channel.games || []).some(g => g.id === game.id);
+                                        return (
+                                          <div
+                                            key={game.id}
+                                            className={alreadyLinked
+                                              ? "p-2 text-gray-600 flex items-center justify-between cursor-default"
+                                              : "p-2 hover:bg-discord-dark/70 cursor-pointer text-gray-300 hover:text-white flex items-center justify-between"
                                             }
-                                          }}
-                                        >
-                                          <span>{game.names.international}</span>
-                                          {isLinkingGame === game.id && (
-                                            <Loader2 className="h-4 w-4 animate-spin text-discord-blurple" />
-                                          )}
-                                        </div>
-                                      ))
+                                            onClick={() => {
+                                              if (!alreadyLinked && !isLinkingGame) {
+                                                handleLinkGame(channel.id, game.id);
+                                              }
+                                            }}
+                                          >
+                                            <span>{game.names.international}</span>
+                                            {alreadyLinked ? (
+                                              <span className="text-xs text-gray-600">Already added</span>
+                                            ) : isLinkingGame === game.id ? (
+                                              <Loader2 className="h-4 w-4 animate-spin text-discord-blurple" />
+                                            ) : null}
+                                          </div>
+                                        );
+                                      })
                                     ) : (
                                       <div className="p-2 text-gray-400">No games found</div>
                                     )}
