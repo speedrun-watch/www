@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -172,9 +172,20 @@ const popularGames = [
 // This is a placeholder Dashboard, you'll expand this with actual functionality later
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("guilds");
   const [activeGuildCategory, setActiveGuildCategory] = useState("all");
-  const [selectedGuildId, setSelectedGuildId] = useState<string | null>(null);
+  const selectedGuildId = searchParams.get("guild");
+  const setSelectedGuildId = useCallback((id: string | null) => {
+    setSearchParams(prev => {
+      if (id) {
+        prev.set("guild", id);
+      } else {
+        prev.delete("guild");
+      }
+      return prev;
+    }, { replace: true });
+  }, [setSearchParams]);
   const [gameSearchTerm, setGameSearchTerm] = useState("");
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [notificationCopied, setNotificationCopied] = useState(false);
