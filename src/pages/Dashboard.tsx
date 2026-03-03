@@ -1019,7 +1019,7 @@ const Dashboard = () => {
                                         </Select>
 
                                         <button
-                                          className="flex h-8 items-center gap-1.5 rounded-md border border-gray-600 bg-discord-dark px-2.5 text-xs text-gray-200 hover:bg-discord-dark/80 transition-colors"
+                                          className="flex h-10 items-center gap-1.5 rounded-md border border-gray-600 bg-discord-dark px-2.5 text-xs text-gray-200 hover:bg-discord-dark/80 transition-colors"
                                           onClick={() => handleToggleCategoryPicker(channel.id, game.id)}
                                         >
                                           <Filter className="w-3.5 h-3.5 text-gray-400" />
