@@ -170,7 +170,7 @@ const Hero = () => {
   const hasToggle = hasFullGame && hasIL;
 
   // Build fields matching the bot's embed order: Type, Category, Place, [Level], [Subcategories...], [Watch]
-  const fields: { name: string; value: string; isLink?: boolean; url?: string }[] = [
+  const fields: { name: string; value: string; prefix?: string; isLink?: boolean; url?: string }[] = [
     {
       name: "Type",
       value: currentRun.categoryType === "per-level" ? "Individual Level" : "Full Game",
@@ -192,7 +192,8 @@ const Hero = () => {
   if (currentRun.videoUrl && currentRun.videoPlatform) {
     fields.push({
       name: "\u200B",
-      value: `Watch on ${currentRun.videoPlatform}`,
+      value: currentRun.videoPlatform,
+      prefix: "Watch on ",
       isLink: true,
       url: currentRun.videoUrl,
     });
@@ -285,6 +286,11 @@ const Hero = () => {
                   </span>
                   <span className="text-gray-400 text-xs ml-2">{formatTimestamp(currentRun.verifyDate)}</span>
                 </div>
+                <div className="font-semibold text-white mb-1">
+                  <a href={`https://www.speedrun.com/${currentRun.gameAbbreviation}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    {currentRun.game}
+                  </a>
+                </div>
                 <div className="mb-2">
                   <span className="flex items-center">
                     <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
@@ -294,19 +300,17 @@ const Hero = () => {
                 <a href={currentRun.weblink} target="_blank" rel="noopener noreferrer" className="mb-2 font-bold text-blue-400 hover:underline flex items-center">
                   {currentRun.title}
                 </a>
-                <div className="font-medium text-white mb-2">
-                  <a href={`https://www.speedrun.com/${currentRun.gameAbbreviation}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                    {currentRun.game}
-                  </a>
-                </div>
                 <div className="grid grid-cols-3 gap-2 mb-4 text-sm">
                   {fields.map((field, i) => (
                     <div key={i}>
                       <div className="text-gray-400">{field.name}</div>
                       {field.isLink && field.url ? (
-                        <a href={field.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                          {field.value}
-                        </a>
+                        <div>
+                          {field.prefix && <span>{field.prefix}</span>}
+                          <a href={field.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                            {field.value}
+                          </a>
+                        </div>
                       ) : (
                         <div>{field.value}</div>
                       )}
