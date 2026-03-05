@@ -82,20 +82,28 @@ function hashStr(s: string): number {
   return Math.abs(h);
 }
 
-function getRunReactions(run: LatestRun): { emoji: string; count: number }[] {
+function getRunEmojis(run: LatestRun): string[] {
   const seed = hashStr(run.weblink || run.game + run.category);
-  const count = 3 + (seed % 2); // 3 or 4 reactions
-  const picked: { emoji: string; count: number }[] = [];
+  const count = 3 + (seed % 2); // 3 or 4 emojis
+  const picked: string[] = [];
   const used = new Set<number>();
   for (let i = 0; i < count; i++) {
     let idx = (seed * (i + 7) + i * 31) % EMOJI_POOL.length;
     while (used.has(idx)) idx = (idx + 1) % EMOJI_POOL.length;
     used.add(idx);
-    // Deterministic count: first reaction gets more
-    const base = i === 0 ? 3 + ((seed >> (i + 2)) % 6) : 1 + ((seed >> (i + 4)) % 4);
-    picked.push({ emoji: EMOJI_POOL[idx], count: base });
+    picked.push(EMOJI_POOL[idx]);
   }
   return picked;
+}
+
+function getVisitorId(): string {
+  const key = "sw_visitor_id";
+  let id = localStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(key, id);
+  }
+  return id;
 }
 
 function getReactionStorageKey(run: LatestRun, emoji: string): string {
@@ -106,6 +114,7 @@ const Hero = () => {
   const [runs, setRuns] = useState<LatestRun[]>([]);
   const [selectedType, setSelectedType] = useState<"full-game" | "individual-level">("full-game");
   const [clickedReactions, setClickedReactions] = useState<Set<string>>(new Set());
+  const [reactionCounts, setReactionCounts] = useState<Record<string, Record<string, number>>>({});
 
   useEffect(() => {
     fetch(`${API_ENDPOINT}/api/latest-runs`)
@@ -113,9 +122,11 @@ const Hero = () => {
       .then(data => {
         if (data.runs && data.runs.length > 0) {
           setRuns(data.runs);
-          // Default to whichever type is available
           const hasFullGame = data.runs.some((r: LatestRun) => r.type === "full-game");
           if (!hasFullGame) setSelectedType("individual-level");
+        }
+        if (data.reactions) {
+          setReactionCounts(data.reactions);
         }
       })
       .catch(() => {});
@@ -124,18 +135,31 @@ const Hero = () => {
   const handleReaction = useCallback((run: LatestRun, emoji: string) => {
     const key = getReactionStorageKey(run, emoji);
     if (clickedReactions.has(key)) return;
+
+    // Optimistic update
     localStorage.setItem(key, "1");
     setClickedReactions(prev => new Set(prev).add(key));
+    setReactionCounts(prev => ({
+      ...prev,
+      [run.type]: { ...prev[run.type], [emoji]: (prev[run.type]?.[emoji] || 0) + 1 },
+    }));
+
+    // POST to backend
+    fetch(`${API_ENDPOINT}/api/latest-runs/${run.type}/reactions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emoji, visitorId: getVisitorId() }),
+    }).catch(() => {});
   }, [clickedReactions]);
 
   const currentRun = runs.find(r => r.type === selectedType) || FALLBACK;
-  const reactions = getRunReactions(currentRun);
+  const emojis = getRunEmojis(currentRun);
 
   // Load persisted reactions for current run
   useEffect(() => {
     const persisted = new Set<string>();
-    for (const r of reactions) {
-      const key = getReactionStorageKey(currentRun, r.emoji);
+    for (const emoji of emojis) {
+      const key = getReactionStorageKey(currentRun, emoji);
       if (localStorage.getItem(key)) persisted.add(key);
     }
     setClickedReactions(persisted);
@@ -301,22 +325,22 @@ const Hero = () => {
 
                 {/* Reactions */}
                 <div className="flex items-center flex-wrap gap-1.5">
-                  {reactions.map((r) => {
-                    const key = getReactionStorageKey(currentRun, r.emoji);
+                  {emojis.map((emoji) => {
+                    const key = getReactionStorageKey(currentRun, emoji);
                     const clicked = clickedReactions.has(key);
-                    const displayCount = r.count + (clicked ? 1 : 0);
+                    const count = reactionCounts[currentRun.type]?.[emoji] || 0;
                     return (
                       <button
-                        key={r.emoji}
-                        onClick={() => handleReaction(currentRun, r.emoji)}
-                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs transition-colors ${
+                        key={emoji}
+                        onClick={() => handleReaction(currentRun, emoji)}
+                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs transition-colors cursor-pointer ${
                           clicked
                             ? "bg-discord-blurple/20 border border-discord-blurple/50 text-white"
                             : "bg-discord-dark/50 border border-white/5 text-gray-300 hover:border-white/20"
                         }`}
                       >
-                        <span className="text-sm leading-none">{r.emoji}</span>
-                        <span>{displayCount}</span>
+                        <span className="text-sm leading-none">{emoji}</span>
+                        {count > 0 && <span>{count}</span>}
                       </button>
                     );
                   })}
