@@ -333,17 +333,25 @@ const Hero = () => {
                       <button
                         key={emoji}
                         onClick={() => handleReaction(currentRun, emoji)}
-                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs transition-colors cursor-pointer ${
+                        className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors cursor-pointer ${
                           clicked
                             ? "bg-discord-blurple/20 border border-discord-blurple/50 text-white"
-                            : "bg-discord-dark/50 border border-white/5 text-gray-300 hover:border-white/20"
+                            : "bg-discord-dark/50 border border-white/10 text-gray-300 hover:border-white/25"
                         }`}
                       >
-                        <span className="text-sm leading-none">{emoji}</span>
-                        {count > 0 && <span>{count}</span>}
+                        <span className="text-base leading-none">{emoji}</span>
+                        {count > 0 && <span className="text-xs">{count}</span>}
                       </button>
                     );
                   })}
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center mt-3 pt-2 border-t border-white/5">
+                  <img src="/favicon-96x96.png" alt="" className="w-4 h-4 rounded-full mr-1.5" />
+                  <span className="text-[11px] text-gray-500">
+                    {currentRun.moderatorName ? `Approved by ${currentRun.moderatorName} · ` : ""}www.speedrun.watch
+                  </span>
                 </div>
               </div>
             </div>
