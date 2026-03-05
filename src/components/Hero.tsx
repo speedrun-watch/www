@@ -284,7 +284,6 @@ const Hero = () => {
                     </svg>
                     APP
                   </span>
-                  <span className="text-gray-400 text-xs ml-2">Today at {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                 </div>
                 <div className="border-l-4 border-green-500/70 pl-3">
                 <div className="mb-2">
