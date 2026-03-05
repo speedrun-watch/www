@@ -326,34 +326,34 @@ const Hero = () => {
                 {/* Footer */}
                 <div className="flex items-center mt-3 pt-2 border-t border-white/5">
                   <img src="/favicon-96x96.png" alt="" className="w-4 h-4 rounded-full mr-1.5" />
-                  <span className="text-[11px] text-gray-500">
+                  <span className="text-[11px] text-gray-300">
                     {currentRun.moderatorName ? `Approved by ${currentRun.moderatorName} · ` : ""}www.speedrun.watch
                   </span>
                 </div>
               </div>
+            </div>
 
-              {/* Reactions — outside the embed border, like Discord */}
-              <div className="flex items-center flex-wrap gap-1.5 mt-2">
-                {emojis.map((emoji) => {
-                  const key = getReactionStorageKey(currentRun, emoji);
-                  const clicked = clickedReactions.has(key);
-                  const count = reactionCounts[currentRun.type]?.[emoji] || 0;
-                  return (
-                    <button
-                      key={emoji}
-                      onClick={() => handleReaction(currentRun, emoji)}
-                      className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors cursor-pointer ${
-                        clicked
-                          ? "bg-discord-blurple/20 border border-discord-blurple/50 text-white"
-                          : "bg-discord-dark/50 border border-white/10 text-gray-300 hover:border-white/25"
-                      }`}
-                    >
-                      <span className="text-base leading-none">{emoji}</span>
-                      {count > 0 && <span className="text-xs">{count}</span>}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Reactions — below the message, aligned with embed content */}
+            <div className="flex items-center flex-wrap gap-1.5 ml-[52px]">
+              {emojis.map((emoji) => {
+                const key = getReactionStorageKey(currentRun, emoji);
+                const clicked = clickedReactions.has(key);
+                const count = reactionCounts[currentRun.type]?.[emoji] || 0;
+                return (
+                  <button
+                    key={emoji}
+                    onClick={() => handleReaction(currentRun, emoji)}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors cursor-pointer ${
+                      clicked
+                        ? "bg-discord-blurple/20 border border-discord-blurple/50 text-white"
+                        : "bg-discord-dark/50 border border-white/10 text-gray-300 hover:border-white/25"
+                    }`}
+                  >
+                    <span className="text-base leading-none">{emoji}</span>
+                    {count > 0 && <span className="text-xs">{count}</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
