@@ -332,7 +332,7 @@ const Hero = () => {
                 <div className="flex items-center mt-3 pt-2 border-t border-white/5">
                   <img src="/favicon-96x96.png" alt="" className="w-5 h-5 rounded-full mr-2" />
                   <span className="text-xs text-gray-300">
-                    {currentRun.moderatorName ? `Approved by ${currentRun.moderatorName} · ` : ""}www.speedrun.watch
+                    {currentRun.moderatorName ? `Approved by ${currentRun.moderatorName} · ` : ""}www.speedrun.watch • {formatTimestamp(currentRun.verifyDate)}
                   </span>
                 </div>
                 </div>
