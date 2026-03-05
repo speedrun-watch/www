@@ -880,7 +880,7 @@ const Dashboard = () => {
                   ) : (
                     <div className="space-y-4">
                       {channels
-                        .filter(channel => channel.type === 0) // Only show text channels
+                        .filter(channel => channel.type === 0 || channel.type === 5) // Text and announcement channels
                         .map(channel => (
                           <div key={channel.id} className="bg-discord-dark rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
