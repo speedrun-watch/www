@@ -275,7 +275,7 @@ const Hero = () => {
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
-              <div className="w-full border-l-4 border-green-500/70 pl-3">
+              <div className="w-full">
                 <div className="flex items-center mb-1">
                   <a href="https://discord.com/discovery/applications/1311698143733354537" target="_blank" rel="noopener noreferrer" className="font-medium text-white mr-2 hover:underline">speedrun.watch</a>
                   <span className="bg-blue-600/90 text-xs font-medium px-2 py-0.5 rounded text-white inline-flex items-center">
@@ -286,6 +286,7 @@ const Hero = () => {
                   </span>
                   <span className="text-gray-400 text-xs ml-2">{formatTimestamp(currentRun.verifyDate)}</span>
                 </div>
+                <div className="border-l-4 border-green-500/70 pl-3">
                 <div className="mb-2">
                   <span className="flex items-center">
                     <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
@@ -333,6 +334,7 @@ const Hero = () => {
                   <span className="text-xs text-gray-300">
                     {currentRun.moderatorName ? `Approved by ${currentRun.moderatorName} · ` : ""}www.speedrun.watch
                   </span>
+                </div>
                 </div>
               </div>
             </div>
