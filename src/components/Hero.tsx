@@ -289,7 +289,7 @@ const Hero = () => {
                     </div>
                   ))}
                 </div>
-                <a href={currentRun.videoUrl || currentRun.weblink} target="_blank" rel="noopener noreferrer" className="mb-3 block relative rounded overflow-hidden">
+                <a href={currentRun.weblink} target="_blank" rel="noopener noreferrer" className="mb-3 block relative rounded overflow-hidden">
                   <div className="aspect-video bg-black">
                     <img
                       src={currentRun.thumbnailUrl}
