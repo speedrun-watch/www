@@ -20,8 +20,14 @@ import {
   ChevronDown,
   ChevronUp,
   Hash,
+  HelpCircle,
   Megaphone,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import GameSearch from "./GameSearch";
 import type { DiscordChannel, Game, GameCategory, Guilds } from "@/types/dashboard";
 
@@ -121,6 +127,16 @@ const ChannelList = ({
                       <Hash className="w-5 h-5 mr-2 text-discord-blurple" />
                     )}
                     {channel.name}
+                    {/^\d+$/.test(channel.name) && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-4 h-4 ml-1.5 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Maybe deleted or private</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </h3>
                   {activeChannelId !== channel.id && (
                     <Button
