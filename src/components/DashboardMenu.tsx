@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
     Copy,
+    ExternalLink,
     Link2,
     Plus,
     Server,
@@ -15,6 +16,7 @@ import {
     ShieldAlert,
     Users,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getDiscordBotInviteUrl } from "@/lib/discord";
 
 interface DashboardMenuProps {
@@ -39,6 +41,7 @@ const DashboardMenu = ({
     onNavigateToDashboard,
     guilds,
 }: DashboardMenuProps) => {
+    const navigate = useNavigate();
     return (
         <TooltipProvider>
             <div className="w-full md:w-64 glass rounded-lg p-4">
@@ -52,6 +55,7 @@ const DashboardMenu = ({
                             >
                                 <Plus className="mr-2 h-5 w-5" />
                                 Add Bot to Discord
+                                <ExternalLink className="ml-auto h-3.5 w-3.5 opacity-50" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -152,7 +156,7 @@ const DashboardMenu = ({
                             ? "bg-discord-blurple text-white"
                             : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
                             }`}
-                        onClick={() => setActiveTab("src-link")}
+                        onClick={() => navigate('/dashboard/src-link')}
                     >
                         <Link2 className="mr-2 h-5 w-5" />
                         Link SRC Account
@@ -164,7 +168,7 @@ const DashboardMenu = ({
                             ? "bg-discord-blurple text-white"
                             : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
                             }`}
-                        onClick={() => setActiveTab("settings")}
+                        onClick={() => navigate('/dashboard/share')}
                     >
                         <Copy className="mr-2 h-5 w-5" />
                         Share bot

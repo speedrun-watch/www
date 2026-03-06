@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Bell,
@@ -21,8 +21,15 @@ import type { DiscordGuild, Guilds, DiscordChannel, Game, GameCategory, GuildCha
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { guildId: selectedGuildId } = useParams<{ guildId: string }>();
-  const [activeTab, setActiveTab] = useState("guilds");
+
+  const getTabFromPath = () => {
+    if (location.pathname === '/dashboard/src-link') return 'src-link';
+    if (location.pathname === '/dashboard/share') return 'settings';
+    return 'guilds';
+  };
+  const [activeTab, setActiveTab] = useState(getTabFromPath);
   const [activeGuildCategory, setActiveGuildCategory] = useState("all");
   const [gameSearchTerm, setGameSearchTerm] = useState("");
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
@@ -56,6 +63,10 @@ const Dashboard = () => {
   useEffect(() => {
     document.title = "Dashboard - speedrun.watch";
   }, []);
+
+  useEffect(() => {
+    setActiveTab(getTabFromPath());
+  }, [location.pathname]);
 
   useEffect(() => {
     return cleanupGameSettings;
