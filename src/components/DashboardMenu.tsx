@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
     Copy,
+    Link2,
     Plus,
     Server,
     Settings,
@@ -144,6 +145,18 @@ const DashboardMenu = ({
                             )}
                         </div>
                     </div>
+
+                    <Button
+                        variant="ghost"
+                        className={`w-full justify-start ${activeTab === "src-link"
+                            ? "bg-discord-blurple text-white"
+                            : "text-gray-400 hover:text-white hover:bg-discord-dark/50"
+                            }`}
+                        onClick={() => setActiveTab("src-link")}
+                    >
+                        <Link2 className="mr-2 h-5 w-5" />
+                        Link SRC Account
+                    </Button>
 
                     <Button
                         variant="ghost"

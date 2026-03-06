@@ -13,6 +13,7 @@ import DashboardMenu from "@/components/DashboardMenu";
 import GuildSelector from "@/components/dashboard/GuildSelector";
 import ChannelList from "@/components/dashboard/ChannelList";
 import AddBotTab from "@/components/dashboard/AddBotTab";
+import SrcLinkTab from "@/components/dashboard/SrcLinkTab";
 import api from "@/lib/api";
 import { isTokenValid, logout } from "@/lib/auth";
 import { useGameSettings } from "@/hooks/useGameSettings";
@@ -346,6 +347,10 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {activeTab === "src-link" && (
+                <SrcLinkTab />
               )}
 
               {activeTab === "settings" && (
