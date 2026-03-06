@@ -78,10 +78,9 @@ const TermsOfService = () => {
                                     The Bot requires the following Discord permissions to function properly:
                                 </p>
                                 <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                                    <li>Read Messages - to understand configuration commands</li>
+                                    <li>View Channels - to list available channels for configuration</li>
                                     <li>Send Messages - to post speedrun notifications</li>
                                     <li>Embed Links - to format notifications with rich content</li>
-                                    <li>Read Message History - to verify channel access</li>
                                 </ul>
                                 <p className="mt-2">
                                     These permissions are necessary for the Bot's core functionality and will not be used for any other purposes.
