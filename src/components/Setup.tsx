@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
+  Link2,
   PlusCircle,
   BellRing,
   MessageSquare,
@@ -67,6 +68,15 @@ const Setup = () => {
       buttonText: authStatus.user ? "Go to Dashboard" : undefined,
       buttonIcon: authStatus.user ? <ArrowRight className="w-4 h-4" /> : undefined,
       action: authStatus.user ? () => window.open('/dashboard', '_self') : undefined
+    },
+    {
+      number: "4",
+      title: "Are You a Runner?",
+      description: "Link your speedrun.com account to get @mentioned in Discord notifications when your runs are posted.",
+      icon: <Link2 className="w-6 h-6 text-discord-fuchsia/80" />,
+      buttonText: authStatus.user ? "Link Account" : undefined,
+      buttonIcon: authStatus.user ? <ArrowRight className="w-4 h-4" /> : undefined,
+      action: authStatus.user ? () => window.open('/dashboard/src-link', '_self') : undefined
     },
   ];
 

@@ -38,7 +38,7 @@ const PrivacyPolicy = () => {
 
                     <div className="max-w-4xl mx-auto bg-discord-dark rounded-lg p-8">
                         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-                        <p className="text-gray-400 mb-8">Last Updated: November 14, 2025</p>
+                        <p className="text-gray-400 mb-8">Last Updated: March 6, 2026</p>
 
                         <div className="space-y-6 text-gray-300">
                             <section>
@@ -76,7 +76,15 @@ const PrivacyPolicy = () => {
                                     <li>Notification settings (what types of notifications to send)</li>
                                 </ul>
 
-                                <h3 className="text-xl font-semibold text-white mb-2 mt-4">2.4 Usage Information</h3>
+                                <h3 className="text-xl font-semibold text-white mb-2 mt-4">2.4 speedrun.com Account Linking</h3>
+                                <p className="mb-2">If you choose to link your speedrun.com account:</p>
+                                <ul className="list-disc list-inside ml-4 space-y-1">
+                                    <li>Your speedrun.com API key is used <strong>once</strong> to verify your identity and is <strong>never stored</strong></li>
+                                    <li>We store your speedrun.com user ID and username to enable Discord mentions in run notifications</li>
+                                    <li>You can unlink your account at any time from the dashboard, which deletes all stored linking data</li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold text-white mb-2 mt-4">2.5 Usage Information</h3>
                                 <p className="mb-2">We may collect:</p>
                                 <ul className="list-disc list-inside ml-4 space-y-1">
                                     <li>Dashboard access logs</li>
