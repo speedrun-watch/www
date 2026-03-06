@@ -39,9 +39,11 @@ interface LatestRun {
 function formatTimestamp(iso: string): string {
   const date = new Date(iso);
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.round((today.getTime() - dateDay.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return `Today at ${timeStr}`;
   if (diffDays === 1) return `Yesterday at ${timeStr}`;
