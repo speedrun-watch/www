@@ -61,50 +61,47 @@ const SrcLinkTab = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-      </div>
-    );
-  }
-
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Link speedrun.com Account</h1>
+      <h1 className="text-2xl font-bold mb-2">Link speedrun.com Account</h1>
+      <p className="text-gray-400 text-sm mb-6">
+        Get @mentioned in Discord notifications when your runs are posted
+      </p>
 
-      {link?.linked ? (
-        <div className="glass p-6 rounded-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-white font-medium">Linked to {link.srcUsername}</p>
-              <p className="text-sm text-gray-300">
-                Your Discord will be mentioned in run notifications
-              </p>
-            </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 text-discord-blurple mx-auto mb-3 animate-spin" />
+            <p className="text-gray-400">Loading account link...</p>
           </div>
-
-          <a
-            href={`https://www.speedrun.com/users/${link.srcUsername}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1 mb-4"
-          >
-            View profile on speedrun.com <ExternalLink className="w-3 h-3" />
-          </a>
-
-          <div className="mt-4 pt-4 border-t border-white/10">
+        </div>
+      ) : link?.linked ? (
+        <div className="glass p-6 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                <Link2 className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <p className="text-white font-medium">Linked to {link.srcUsername}</p>
+                <a
+                  href={`https://www.speedrun.com/users/${link.srcUsername}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1"
+                >
+                  View profile <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
             <Button
-              variant="outline"
-              className="border-red-400/40 text-red-300 hover:bg-red-500/10 hover:text-red-200"
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-red-400"
               onClick={handleUnlink}
               disabled={unlinking}
             >
-              {unlinking ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Unlink className="w-4 h-4 mr-2" />}
-              Unlink Account
+              {unlinking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Unlink className="w-4 h-4" />}
             </Button>
           </div>
         </div>
