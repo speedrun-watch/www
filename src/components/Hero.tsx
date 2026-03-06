@@ -257,13 +257,13 @@ const Hero = () => {
                   className={`px-2.5 py-0.5 rounded-full text-[11px] transition-colors ${selectedType === "full-game" ? "bg-discord-blurple/80 text-white" : "text-gray-500 hover:text-gray-300"}`}
                   onClick={() => setSelectedType("full-game")}
                 >
-                  Full Game WR
+                  Latest Full Game WR
                 </button>
                 <button
                   className={`px-2.5 py-0.5 rounded-full text-[11px] transition-colors ${selectedType === "individual-level" ? "bg-discord-blurple/80 text-white" : "text-gray-500 hover:text-gray-300"}`}
                   onClick={() => setSelectedType("individual-level")}
                 >
-                  IL WR
+                  Latest IL WR
                 </button>
               </div>
             )}
