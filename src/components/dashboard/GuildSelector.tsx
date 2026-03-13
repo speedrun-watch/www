@@ -31,7 +31,7 @@ const GuildSelector = ({
   onSelectGuild,
 }: GuildSelectorProps) => {
   const sortByCreation = <T extends { id: string }>(list: T[]) =>
-    [...list].sort((a, b) => a.id.localeCompare(b.id));
+    [...list].sort((a, b) => Number(BigInt(a.id) - BigInt(b.id)));
 
   const allGuilds = [
     ...sortByCreation(guilds.owner),
