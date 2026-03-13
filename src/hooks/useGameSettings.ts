@@ -87,7 +87,7 @@ export function useGameSettings(
       const channel = channels.find(c => c.id === channelId);
       const game = channel?.games?.find(g => g.id === gameId);
       lastConfirmedRef.current[key] = {
-        notificationType: game?.notificationType || 'world-records',
+        notificationType: game?.notificationType || 'any',
         categoryIds: game?.categoryIds || [],
       };
     }
@@ -143,9 +143,9 @@ export function useGameSettings(
     scheduleGameSettingsSave(channelId, gameId);
   };
 
-  const cleanup = () => {
+  const cleanup = useCallback(() => {
     Object.values(saveTimersRef.current).forEach(clearTimeout);
-  };
+  }, []);
 
   return {
     handleUpdateNotificationSettings,

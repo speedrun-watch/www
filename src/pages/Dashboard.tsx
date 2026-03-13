@@ -187,7 +187,7 @@ const Dashboard = () => {
   const getCurrentNotificationSetting = (channelId: string, gameId: string) => {
     const channel = channels.find(c => c.id === channelId);
     const game = channel?.games?.find(g => g.id === gameId);
-    return game?.notificationType || 'world-records';
+    return game?.notificationType || 'any';
   };
 
   const handleCopyShareText = () => {
