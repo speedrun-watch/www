@@ -22,6 +22,7 @@ import {
   Hash,
   HelpCircle,
   Megaphone,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Tooltip,
@@ -36,6 +37,7 @@ interface ChannelListProps {
   guilds: Guilds;
   selectedGuildId: string;
   isFetchingChannels: boolean;
+  channelFetchError: boolean;
   activeChannelId: string | null;
   gameSearchTerm: string;
   searchResults: Game[];
@@ -62,6 +64,7 @@ const ChannelList = ({
   guilds,
   selectedGuildId,
   isFetchingChannels,
+  channelFetchError,
   activeChannelId,
   gameSearchTerm,
   searchResults,
@@ -110,6 +113,14 @@ const ChannelList = ({
           <div className="text-center">
             <Loader2 className="w-8 h-8 text-discord-blurple mx-auto mb-3 animate-spin" />
             <p className="text-gray-400">Loading channels from Discord...</p>
+          </div>
+        </div>
+      ) : channelFetchError ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <AlertTriangle className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
+            <p className="text-gray-300 font-medium">Couldn't fetch channels</p>
+            <p className="text-gray-400 text-sm mt-1">Is the bot still installed in this server?</p>
           </div>
         </div>
       ) : (

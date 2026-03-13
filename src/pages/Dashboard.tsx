@@ -47,6 +47,7 @@ const Dashboard = () => {
   const [isUnlinkingGame, setIsUnlinkingGame] = useState<string | null>(null);
   const [isFetchingGuilds, setIsFetchingGuilds] = useState(false);
   const [isFetchingChannels, setIsFetchingChannels] = useState(false);
+  const [channelFetchError, setChannelFetchError] = useState(false);
   const [categoryData, setCategoryData] = useState<Record<string, GameCategory[]>>({});
   const [expandedCategoryGame, setExpandedCategoryGame] = useState<string | null>(null);
   const [isFetchingCategories, setIsFetchingCategories] = useState<string | null>(null);
@@ -104,6 +105,7 @@ const Dashboard = () => {
     const fetchGuildChannels = async () => {
       if (!selectedGuildId) return;
       setChannels([]);
+      setChannelFetchError(false);
       setIsFetchingChannels(true);
       try {
         const response = await api.get<GuildChannelsResponse>(
@@ -112,6 +114,7 @@ const Dashboard = () => {
         setChannels(response.data.guildChannels);
       } catch (error) {
         console.error("Error fetching guild channels:", error);
+        setChannelFetchError(true);
       } finally {
         setIsFetchingChannels(false);
       }
@@ -316,6 +319,7 @@ const Dashboard = () => {
                   guilds={guilds}
                   selectedGuildId={selectedGuildId}
                   isFetchingChannels={isFetchingChannels}
+                  channelFetchError={channelFetchError}
                   activeChannelId={activeChannelId}
                   gameSearchTerm={gameSearchTerm}
                   searchResults={searchResults}
