@@ -30,19 +30,22 @@ const GuildSelector = ({
   selectedGuildId,
   onSelectGuild,
 }: GuildSelectorProps) => {
+  const sortByCreation = <T extends { id: string }>(list: T[]) =>
+    [...list].sort((a, b) => a.id.localeCompare(b.id));
+
   const allGuilds = [
-    ...guilds.owner,
-    ...guilds.admin,
-    ...guilds.moderator,
-    ...guilds.superadmin,
+    ...sortByCreation(guilds.owner),
+    ...sortByCreation(guilds.admin),
+    ...sortByCreation(guilds.moderator),
+    ...sortByCreation(guilds.superadmin),
   ];
 
   const displayedGuilds =
     activeGuildCategory === "all" ? allGuilds :
-    activeGuildCategory === "owner" ? guilds.owner :
-    activeGuildCategory === "admin" ? guilds.admin :
-    activeGuildCategory === "superadmin" ? guilds.superadmin :
-    guilds.moderator;
+    activeGuildCategory === "owner" ? sortByCreation(guilds.owner) :
+    activeGuildCategory === "admin" ? sortByCreation(guilds.admin) :
+    activeGuildCategory === "superadmin" ? sortByCreation(guilds.superadmin) :
+    sortByCreation(guilds.moderator);
 
   return (
     <div>
