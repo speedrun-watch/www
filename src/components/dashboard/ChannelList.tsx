@@ -42,7 +42,7 @@ interface ChannelListProps {
   gameSearchTerm: string;
   searchResults: Game[];
   isSearching: boolean;
-  isLinkingGame: string | null;
+  linkingGameIds: Set<string>;
   isUnlinkingGame: string | null;
   expandedCategoryGame: string | null;
   isFetchingCategories: string | null;
@@ -69,7 +69,7 @@ const ChannelList = ({
   gameSearchTerm,
   searchResults,
   isSearching,
-  isLinkingGame,
+  linkingGameIds,
   isUnlinkingGame,
   expandedCategoryGame,
   isFetchingCategories,
@@ -169,7 +169,7 @@ const ChannelList = ({
                     onSearchTermChange={onSearchTermChange}
                     searchResults={searchResults}
                     isSearching={isSearching}
-                    isLinkingGame={isLinkingGame}
+                    linkingGameIds={linkingGameIds}
                     onLinkGame={onLinkGame}
                     onClose={() => onSetActiveChannelId(null)}
                   />

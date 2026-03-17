@@ -8,7 +8,7 @@ interface GameSearchProps {
   onSearchTermChange: (term: string) => void;
   searchResults: Game[];
   isSearching: boolean;
-  isLinkingGame: string | null;
+  linkingGameIds: Set<string>;
   onLinkGame: (channelId: string, gameId: string) => void;
   onClose: () => void;
 }
@@ -19,7 +19,7 @@ const GameSearch = ({
   onSearchTermChange,
   searchResults,
   isSearching,
-  isLinkingGame,
+  linkingGameIds,
   onLinkGame,
   onClose,
 }: GameSearchProps) => {
@@ -57,7 +57,7 @@ const GameSearch = ({
                     : "p-2 hover:bg-discord-dark/70 cursor-pointer text-gray-300 hover:text-white flex items-center justify-between"
                   }
                   onClick={() => {
-                    if (!alreadyLinked && !isLinkingGame) {
+                    if (!alreadyLinked && !linkingGameIds.has(game.id)) {
                       onLinkGame(channel.id, game.id);
                     }
                   }}
@@ -65,7 +65,7 @@ const GameSearch = ({
                   <span>{game.names.international}</span>
                   {alreadyLinked ? (
                     <span className="text-xs text-gray-600">Already added</span>
-                  ) : isLinkingGame === game.id ? (
+                  ) : linkingGameIds.has(game.id) ? (
                     <Loader2 className="h-4 w-4 animate-spin text-discord-blurple" />
                   ) : null}
                 </div>

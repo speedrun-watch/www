@@ -43,7 +43,7 @@ const Dashboard = () => {
   const [channels, setChannels] = useState<DiscordChannel[]>([]);
   const [searchResults, setSearchResults] = useState<Game[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [isLinkingGame, setIsLinkingGame] = useState<string | null>(null);
+  const [linkingGameIds, setLinkingGameIds] = useState<Set<string>>(new Set());
   const [isUnlinkingGame, setIsUnlinkingGame] = useState<string | null>(null);
   const [isFetchingGuilds, setIsFetchingGuilds] = useState(false);
   const [isFetchingChannels, setIsFetchingChannels] = useState(false);
@@ -129,11 +129,11 @@ const Dashboard = () => {
   };
 
   const handleLinkGame = async (channelId: string, gameId: string) => {
-    setIsLinkingGame(gameId);
-    try {
-      const selectedGame = searchResults.find(g => g.id === gameId);
-      if (!selectedGame) return;
+    const selectedGame = searchResults.find(g => g.id === gameId);
+    if (!selectedGame) return;
 
+    setLinkingGameIds(prev => new Set(prev).add(gameId));
+    try {
       await api.post(
         `/api/guilds/${selectedGuildId}/channels/${channelId}/games/${selectedGame.id}`,
         {}
@@ -142,23 +142,22 @@ const Dashboard = () => {
       setChannels(prevChannels =>
         prevChannels.map(channel => {
           if (channel.id === channelId) {
-            selectedGame.gameName = selectedGame.names.international;
             return {
               ...channel,
-              games: [...(channel.games || []), selectedGame]
+              games: [...(channel.games || []), { ...selectedGame, gameName: selectedGame.names.international }]
             };
           }
           return channel;
         })
       );
-
-      setGameSearchTerm("");
-      setActiveChannelId(null);
-      setSearchResults([]);
     } catch (error) {
       console.error("Error linking game:", error);
     } finally {
-      setIsLinkingGame(null);
+      setLinkingGameIds(prev => {
+        const next = new Set(prev);
+        next.delete(gameId);
+        return next;
+      });
     }
   };
 
@@ -324,7 +323,7 @@ const Dashboard = () => {
                   gameSearchTerm={gameSearchTerm}
                   searchResults={searchResults}
                   isSearching={isSearching}
-                  isLinkingGame={isLinkingGame}
+                  linkingGameIds={linkingGameIds}
                   isUnlinkingGame={isUnlinkingGame}
                   expandedCategoryGame={expandedCategoryGame}
                   isFetchingCategories={isFetchingCategories}
