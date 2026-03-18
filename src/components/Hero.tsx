@@ -356,6 +356,7 @@ const Hero = () => {
                     <img
                       src={currentRun.thumbnailUrl}
                       alt={`${currentRun.game} speedrun thumbnail`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
                     />
                   </div>
