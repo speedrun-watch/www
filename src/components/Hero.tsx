@@ -120,15 +120,16 @@ const Hero = () => {
   const [reactionCounts, setReactionCounts] = useState<Record<string, Record<string, number>>>({});
 
   useEffect(() => {
-    fetch(`${API_ENDPOINT}/api/latest-runs`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.runs && data.runs.length > 0) {
+    const promise = (window as any).__latestRunsPromise || fetch(`${API_ENDPOINT}/api/latest-runs`).then(res => res.json()).catch(() => null);
+    delete (window as any).__latestRunsPromise;
+    promise
+      .then((data: any) => {
+        if (data?.runs && data.runs.length > 0) {
           setRuns(data.runs);
           const hasFullGame = data.runs.some((r: LatestRun) => r.type === "full-game");
           if (!hasFullGame) setSelectedType("individual-level");
         }
-        if (data.reactions) {
+        if (data?.reactions) {
           setReactionCounts(data.reactions);
         }
       })
@@ -272,30 +273,30 @@ const Hero = () => {
           </div>
           <div className="p-4 bg-discord-darker/90 text-white">
             {!loaded ? (
-              <div className="flex items-start">
-                <div className="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
-                  <img
-                    src="/favicon-96x96.png"
-                    alt="speedrun.watch bot avatar"
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                </div>
-                <div>
+              <div className="flex items-start mb-6 animate-pulse">
+                <div className="w-10 h-10 rounded-full bg-white/10 mr-3 flex-shrink-0" />
+                <div className="w-full">
                   <div className="flex items-center mb-1">
-                    <span className="font-medium text-white mr-2">speedrun.watch</span>
-                    <span className="bg-blue-600/90 text-xs font-medium px-2 py-0.5 rounded text-white inline-flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 mr-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      APP
-                    </span>
+                    <div className="h-4 w-28 bg-white/10 rounded" />
+                    <div className="h-5 w-12 bg-blue-600/30 rounded ml-2" />
                   </div>
-                  <div className="flex items-center text-gray-400 text-sm">
-                    <svg className="w-4 h-4 mr-2 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                    </svg>
-                    Sending notification...
+                  <div className="border-l-4 border-green-500/30 pl-3">
+                    <div className="h-4 w-48 bg-white/10 rounded mb-2" />
+                    <div className="h-5 w-64 bg-blue-400/10 rounded mb-2" />
+                    <div className="h-4 w-36 bg-white/10 rounded mb-2" />
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i}>
+                          <div className="h-3 w-16 bg-white/5 rounded mb-1" />
+                          <div className="h-4 w-20 bg-white/10 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="aspect-video bg-white/5 rounded mb-3" />
+                    <div className="flex items-center pt-2 border-t border-white/5">
+                      <div className="w-5 h-5 rounded-full bg-white/10 mr-2" />
+                      <div className="h-3 w-48 bg-white/5 rounded" />
+                    </div>
                   </div>
                 </div>
               </div>

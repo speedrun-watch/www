@@ -98,6 +98,12 @@
 
 <body>
   <div id="root"></div>
+  <!-- Prefetch latest runs before React loads so the hero embed appears faster -->
+  <script>
+    window.__latestRunsPromise = fetch('%VITE_API_ENDPOINT%/api/latest-runs')
+      .then(function(r) { return r.json(); })
+      .catch(function() { return null; });
+  </script>
   <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
   <!-- <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script> -->
   <script type="module" src="/src/main.tsx"></script>
