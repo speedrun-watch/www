@@ -223,9 +223,8 @@ const Hero = () => {
               </div>
               <h1 className="text-2xl md:text-3xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-discord-blurple/90 to-discord-fuchsia/80 bg-clip-text text-transparent">
-                  Speedrun Notifications
-                </span>{" "}
-                for Discord Servers
+                  Speedrun Discord Bot
+                </span>
               </h1>
             </div>
           </div>

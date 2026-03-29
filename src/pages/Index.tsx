@@ -29,7 +29,7 @@ const Index = () => {
 
     const observer = animateOnScroll();
 
-    document.title = "speedrun.watch - Discord Bot for Speedrun Notifications";
+    document.title = "speedrun.watch - Speedrun Discord Bot";
 
     return () => {
       if (observer) {
