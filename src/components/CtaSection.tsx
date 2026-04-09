@@ -36,11 +36,8 @@ const CtaSection = () => {
             {" "}across{" "}
             <span className="text-discord-blurple font-bold">{stats.guildCount} communities</span>
           </h2>
-          <p className="text-lg text-white mb-2">
-            <span className="text-discord-blurple font-bold">{stats.totalEmbedsSent.toLocaleString()} embeds</span> sent so far
-          </p>
           <p className="text-gray-400 mb-6">including</p>
-          <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto mb-6">
             {featuredCommunities.map((community, index) => (
               <div
                 key={index}
@@ -55,6 +52,7 @@ const CtaSection = () => {
               </div>
             ))}
           </div>
+          <p className="text-gray-400">{stats.totalEmbedsSent.toLocaleString()} runs shared so far</p>
         </div>
       </div>
     </section>
