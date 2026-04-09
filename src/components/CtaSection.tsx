@@ -11,7 +11,7 @@ const featuredCommunities = [
 ];
 
 const CtaSection = () => {
-  const [stats, setStats] = useState<{ guildCount: number; gameCount: number } | null>(null);
+  const [stats, setStats] = useState<{ guildCount: number; gameCount: number; totalEmbedsSent: number } | null>(null);
 
   useEffect(() => {
     api.get("/api/stats")
@@ -36,6 +36,9 @@ const CtaSection = () => {
             {" "}across{" "}
             <span className="text-discord-blurple font-bold">{stats.guildCount} communities</span>
           </h2>
+          <p className="text-lg text-white mb-2">
+            <span className="text-discord-blurple font-bold">{stats.totalEmbedsSent.toLocaleString()} embeds</span> sent so far
+          </p>
           <p className="text-gray-400 mb-6">including</p>
           <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
             {featuredCommunities.map((community, index) => (
