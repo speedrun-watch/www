@@ -4,10 +4,10 @@ import api from "@/lib/api";
 
 const featuredCommunities = [
   { name: "Worms Speedrunning", icon: "https://cdn.discordapp.com/icons/886742237982113843/f337cdeffb998e2727fbb6ef6349845a.png" },
-  { name: "Splatoon Speedrunning", icon: "https://cdn.discordapp.com/icons/128071543531110400/724419a2d69ac68afa53ff49564e039a.png" },
+  { name: "CS Speedrunning", icon: "https://cdn.discordapp.com/icons/331766263019995137/fae09fd8a402892b6f957bf605388ed4.png" },
   { name: "F1 Game Speedrunning", icon: "https://cdn.discordapp.com/icons/796696691968573451/146e88b3a6ba7a13f9004f670e12bc70.png" },
   { name: "Tomb Runner", icon: "https://cdn.discordapp.com/icons/183942718630658048/2c2c58150f220dda97bb4f6133ef4205.png" },
-  { name: "Bike Racing Games", icon: "https://cdn.discordapp.com/icons/1469820419715371078/ff8602362b42ac1987609b0fce3064d8.png" },
+  { name: "Splatoon Speedrunning", icon: "https://cdn.discordapp.com/icons/128071543531110400/724419a2d69ac68afa53ff49564e039a.png" },
 ];
 
 const CtaSection = () => {
