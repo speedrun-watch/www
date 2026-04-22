@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -57,6 +59,9 @@ interface ChannelListProps {
   onUpdateCategoryFilter: (channelId: string, gameId: string, categoryIds: string[]) => void;
   getCurrentNotificationSetting: (channelId: string, gameId: string) => string;
   getCategoryLabel: (channelId: string, gameId: string) => string;
+  flagsEnabled: boolean;
+  onToggleFlags: (next: boolean) => void;
+  isUpdatingFlags: boolean;
 }
 
 const ChannelList = ({
@@ -84,6 +89,9 @@ const ChannelList = ({
   onUpdateCategoryFilter,
   getCurrentNotificationSetting,
   getCategoryLabel,
+  flagsEnabled,
+  onToggleFlags,
+  isUpdatingFlags,
 }: ChannelListProps) => {
   const allGuilds = [
     ...guilds.owner,
@@ -106,6 +114,29 @@ const ChannelList = ({
         <h1 className="text-2xl font-bold flex items-center">
           {allGuilds.find(g => g.id === selectedGuildId)?.name}'s Notification Channels
         </h1>
+      </div>
+
+      <div className="bg-discord-dark/50 rounded-lg p-4 mb-6 flex items-start gap-4">
+        <div className="flex items-center gap-3 pt-0.5">
+          <Switch
+            id="flags-enabled"
+            checked={flagsEnabled}
+            onCheckedChange={onToggleFlags}
+            disabled={isUpdatingFlags}
+          />
+          <Label htmlFor="flags-enabled" className="text-sm font-medium text-gray-200 cursor-pointer">
+            Show country flags
+          </Label>
+        </div>
+        <div className="text-xs text-gray-400 flex-1 leading-relaxed">
+          When on, player names appear as <span className="text-gray-200">Runner·🇺🇸</span>.
+          When off, just <span className="text-gray-200">Runner</span>.
+          {" "}
+          <span className="block mt-1">
+            Note: flag emojis render as country codes (e.g. <span className="text-gray-300">🇺🇸 → US</span>) on Windows, which lacks native flag glyphs.
+            macOS, iOS, and Android display them as proper flags. Turn this off if most of your members are on Windows.
+          </span>
+        </div>
       </div>
 
       {isFetchingChannels ? (

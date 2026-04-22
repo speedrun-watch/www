@@ -51,6 +51,8 @@ const Dashboard = () => {
   const [categoryData, setCategoryData] = useState<Record<string, GameCategory[]>>({});
   const [expandedCategoryGame, setExpandedCategoryGame] = useState<string | null>(null);
   const [isFetchingCategories, setIsFetchingCategories] = useState<string | null>(null);
+  const [flagsEnabled, setFlagsEnabled] = useState<boolean>(true);
+  const [isUpdatingFlags, setIsUpdatingFlags] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const selectedGuildIdRef = useRef(selectedGuildId);
   selectedGuildIdRef.current = selectedGuildId;
@@ -122,6 +124,38 @@ const Dashboard = () => {
 
     fetchGuildChannels();
   }, [selectedGuildId]);
+
+  useEffect(() => {
+    if (!selectedGuildId) return;
+    const fetchSettings = async () => {
+      try {
+        const response = await api.get<{ flagsEnabled: boolean }>(
+          `/api/guilds/${selectedGuildId}/settings`,
+        );
+        setFlagsEnabled(response.data.flagsEnabled);
+      } catch (error) {
+        console.error("Error fetching guild settings:", error);
+      }
+    };
+    fetchSettings();
+  }, [selectedGuildId]);
+
+  const handleToggleFlags = async (next: boolean) => {
+    if (!selectedGuildId) return;
+    const prev = flagsEnabled;
+    setFlagsEnabled(next); // optimistic
+    setIsUpdatingFlags(true);
+    try {
+      await api.patch(`/api/guilds/${selectedGuildId}/settings`, {
+        flagsEnabled: next,
+      });
+    } catch (error) {
+      console.error("Error updating flags setting:", error);
+      setFlagsEnabled(prev); // revert on failure
+    } finally {
+      setIsUpdatingFlags(false);
+    }
+  };
 
   const handleBackToGuilds = () => {
     navigate('/dashboard');
@@ -338,6 +372,9 @@ const Dashboard = () => {
                   onUpdateCategoryFilter={handleUpdateCategoryFilter}
                   getCurrentNotificationSetting={getCurrentNotificationSetting}
                   getCategoryLabel={getCategoryLabel}
+                  flagsEnabled={flagsEnabled}
+                  onToggleFlags={handleToggleFlags}
+                  isUpdatingFlags={isUpdatingFlags}
                 />
               )}
 
