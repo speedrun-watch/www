@@ -1,16 +1,28 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 
-const PrivacyPolicy = () => {
-    useEffect(() => {
-        document.title = "Privacy Policy - speedrun.watch";
-    }, []);
+const TITLE = "Privacy Policy - speedrun.watch";
+const DESCRIPTION =
+    "Privacy Policy for speedrun.watch — what we store, how we use it, and your rights.";
+const URL = "https://speedrun.watch/privacy-policy";
 
+const PrivacyPolicy = () => {
     return (
         <div className="min-h-screen bg-discord-darker text-white flex flex-col">
+            <title>{TITLE}</title>
+            <meta name="description" content={DESCRIPTION} />
+            <link rel="canonical" href={URL} />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={URL} />
+            <meta property="og:title" content={TITLE} />
+            <meta property="og:description" content={DESCRIPTION} />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:url" content={URL} />
+            <meta name="twitter:title" content={TITLE} />
+            <meta name="twitter:description" content={DESCRIPTION} />
+
             {/* Header */}
             <header className="bg-discord-dark py-4 border-b border-gray-800">
                 <div className="container mx-auto flex justify-between items-center">

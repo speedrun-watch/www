@@ -3,8 +3,5 @@ variable "acm_certificate_arn" {
   type        = string
 }
 
-variable "cloudfront_block_direct_access_function_name" {
-  description = "Name of the CloudFront function that blocks direct S3 access"
-  type        = string
-  default     = "BlockDirectAccess"
-}
+# cloudfront_block_direct_access_function_name removed — the CloudFront
+# function is now defined in cloudfront_function.tf and referenced directly.

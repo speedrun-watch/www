@@ -6,9 +6,13 @@ import Setup from "@/components/Setup";
 import CtaSection from "@/components/CtaSection";
 import Footer from "@/components/Footer";
 
+const TITLE = "speedrun.watch - Speedrun Discord Bot";
+const DESCRIPTION =
+  "Free Discord bot that notifies your server about new verified speedruns from speedrun.com. Track world records, top placements, and new runs for any game automatically.";
+const URL = "https://speedrun.watch/";
+
 const Index = () => {
   useEffect(() => {
-    // Add intersection observer for animation on scroll
     const animateOnScroll = () => {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -28,18 +32,23 @@ const Index = () => {
     };
 
     const observer = animateOnScroll();
-
-    document.title = "speedrun.watch - Speedrun Discord Bot";
-
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-    };
+    return () => observer?.disconnect();
   }, []);
 
   return (
     <div className="min-h-screen bg-discord-darker text-white overflow-x-hidden flex flex-col">
+      <title>{TITLE}</title>
+      <meta name="description" content={DESCRIPTION} />
+      <link rel="canonical" href={URL} />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={URL} />
+      <meta property="og:title" content={TITLE} />
+      <meta property="og:description" content={DESCRIPTION} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={URL} />
+      <meta name="twitter:title" content={TITLE} />
+      <meta name="twitter:description" content={DESCRIPTION} />
+
       <Navbar />
       <div className="flex-1">
         <Hero />

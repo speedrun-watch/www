@@ -4,13 +4,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>speedrun.watch - Speedrun Discord Bot</title>
-  <meta name="description"
-    content="Free Discord bot that notifies your server about new verified speedruns from speedrun.com. Track world records, top placements, and new runs for any game automatically." />
+  <!-- Per-page <title>, description, canonical, OG, and Twitter meta are rendered by
+       React 19 head hoisting in each page component, so they appear in both the
+       prerendered HTML (good for crawlers) and after client-side navigation. -->
   <meta name="keywords"
     content="speedrun, discord bot, speedrun bot, speedrun discord bot, speedrun notifications, speedrun.com, world records, gaming, leaderboards, speedrunning" />
   <meta name="author" content="speedrun.watch" />
   <meta name="robots" content="index, follow" />
+
+  <!-- Static og:image / twitter:image — same hero artwork on every page for now -->
+  <meta property="og:image" content="https://speedrun.watch/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="686" />
+  <meta property="og:site_name" content="speedrun.watch" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:image" content="https://speedrun.watch/og-image.png" />
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X2MKJ2CJMM"></script>
@@ -21,30 +30,6 @@
 
     gtag('config', 'G-X2MKJ2CJMM');
   </script>
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://speedrun.watch/" />
-  <meta property="og:title" content="speedrun.watch - Speedrun Discord Bot" />
-  <meta property="og:description"
-    content="Free Discord bot that notifies your server about new verified speedruns from speedrun.com. Track world records, top placements, and new runs for any game." />
-  <meta property="og:image" content="https://speedrun.watch/og-image.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="686" />
-  <meta property="og:site_name" content="speedrun.watch" />
-  <meta property="og:locale" content="en_US" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://speedrun.watch/" />
-  <meta name="twitter:title" content="speedrun.watch - Speedrun Discord Bot" />
-  <meta name="twitter:description"
-    content="Free Discord bot that notifies your server about new verified speedruns from speedrun.com. Track world records, top placements, and new runs for any game." />
-  <meta name="twitter:image" content="https://speedrun.watch/og-image.png" />
-
-  <!-- Canonical URL -->
-  <link rel="canonical" href="https://speedrun.watch/" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
