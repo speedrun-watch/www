@@ -25,7 +25,13 @@ const server = await preview({
 });
 
 const baseURL = `http://localhost:${PORT}`;
-const browser = await puppeteer.launch({ headless: true });
+// --no-sandbox is required on GitHub Actions' Ubuntu 24+ runners, which
+// disable unprivileged user namespaces — the sandbox is unnecessary here
+// because we're driving a trusted local preview, not arbitrary URLs.
+const browser = await puppeteer.launch({
+  headless: true,
+  args: ["--no-sandbox", "--disable-setuid-sandbox"],
+});
 
 try {
   for (const route of ROUTES) {
