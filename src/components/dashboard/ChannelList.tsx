@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Twemoji } from "@/lib/twemoji";
 import {
   Select,
   SelectContent,
@@ -129,11 +130,11 @@ const ChannelList = ({
           </Label>
         </div>
         <div className="text-xs text-gray-400 flex-1 leading-relaxed">
-          When on, player names appear as <span className="text-gray-200">Runner·🇺🇸</span>.
+          When on, player names appear as <span className="text-gray-200"><Twemoji text="Runner·🇺🇸" /></span>.
           When off, just <span className="text-gray-200">Runner</span>.
           {" "}
           <span className="block mt-1">
-            Note: flag emojis render as country codes (e.g. <span className="text-gray-300">🇺🇸 → US</span>) on Windows, which lacks native flag glyphs.
+            Note: flag emojis render as country codes (e.g. <span className="text-gray-300"><Twemoji text="🇺🇸 → US" /></span>) on Windows, which lacks native flag glyphs.
             macOS, iOS, and Android display them as proper flags. Turn this off if most of your members are on Windows.
           </span>
         </div>

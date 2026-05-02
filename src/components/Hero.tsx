@@ -8,6 +8,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { getDiscordBotInviteUrl } from "@/lib/discord";
+import { Twemoji } from "@/lib/twemoji";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -323,7 +324,7 @@ const Hero = () => {
                 <div className="mb-2">
                   <span className="flex items-center">
                     <Trophy className="w-4 h-4 text-yellow-500 mr-2" />
-                    <span className="font-medium">{currentRun.embedTitle}</span>
+                    <span className="font-medium"><Twemoji text={currentRun.embedTitle} /></span>
                   </span>
                 </div>
                 <a href={currentRun.weblink} target="_blank" rel="noopener noreferrer" className="mb-2 font-bold text-blue-400 hover:underline flex items-center">
