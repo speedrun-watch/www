@@ -33,7 +33,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import GameSearch from "./GameSearch";
-import type { DiscordChannel, Game, GameCategory, Guilds } from "@/types/dashboard";
+import type { DiscordChannel, Game, GameCategory, SubcategoryVariable, GamePlatform, Guilds } from "@/types/dashboard";
 
 interface ChannelListProps {
   channels: DiscordChannel[];
@@ -50,6 +50,8 @@ interface ChannelListProps {
   expandedCategoryGame: string | null;
   isFetchingCategories: string | null;
   categoryData: Record<string, GameCategory[]>;
+  variableData: Record<string, SubcategoryVariable[]>;
+  platformData: Record<string, GamePlatform[]>;
   onBackToGuilds: () => void;
   onSetActiveChannelId: (channelId: string | null) => void;
   onSearchTermChange: (term: string) => void;
@@ -58,8 +60,10 @@ interface ChannelListProps {
   onUpdateNotification: (channelId: string, gameId: string, setting: string) => void;
   onToggleCategoryPicker: (channelId: string, gameId: string) => void;
   onUpdateCategoryFilter: (channelId: string, gameId: string, categoryIds: string[]) => void;
+  onUpdateValueFilters: (channelId: string, gameId: string, valueFilters: Record<string, string[]>) => void;
+  onUpdatePlatformFilter: (channelId: string, gameId: string, platformIds: string[]) => void;
   getCurrentNotificationSetting: (channelId: string, gameId: string) => string;
-  getCategoryLabel: (channelId: string, gameId: string) => string;
+  getFilterLabel: (channelId: string, gameId: string) => string;
   flagsEnabled: boolean;
   onToggleFlags: (next: boolean) => void;
   isUpdatingFlags: boolean;
@@ -80,6 +84,8 @@ const ChannelList = ({
   expandedCategoryGame,
   isFetchingCategories,
   categoryData,
+  variableData,
+  platformData,
   onBackToGuilds,
   onSetActiveChannelId,
   onSearchTermChange,
@@ -88,8 +94,10 @@ const ChannelList = ({
   onUpdateNotification,
   onToggleCategoryPicker,
   onUpdateCategoryFilter,
+  onUpdateValueFilters,
+  onUpdatePlatformFilter,
   getCurrentNotificationSetting,
-  getCategoryLabel,
+  getFilterLabel,
   flagsEnabled,
   onToggleFlags,
   isUpdatingFlags,
@@ -280,7 +288,7 @@ const ChannelList = ({
                               onClick={() => onToggleCategoryPicker(channel.id, game.id)}
                             >
                               <Filter className="w-3.5 h-3.5 text-gray-400" />
-                              <span>Categories: {getCategoryLabel(channel.id, game.id)}</span>
+                              <span>Filters: {getFilterLabel(channel.id, game.id)}</span>
                               {expandedCategoryGame === `${channel.id}-${game.id}` ? (
                                 <ChevronUp className="h-3.5 w-3.5 opacity-50" />
                               ) : (
@@ -304,14 +312,18 @@ const ChannelList = ({
                           </div>
                         </div>
 
-                        {/* Category filter picker */}
+                        {/* Category / subcategory / platform filter picker */}
                         {expandedCategoryGame === `${channel.id}-${game.id}` && (
-                          <CategoryPicker
+                          <FilterPicker
                             game={game}
                             channelId={channel.id}
                             categoryData={categoryData[game.id]}
+                            variableData={variableData[game.id]}
+                            platformData={platformData[game.id]}
                             isFetching={isFetchingCategories === game.id}
                             onUpdateCategoryFilter={onUpdateCategoryFilter}
+                            onUpdateValueFilters={onUpdateValueFilters}
+                            onUpdatePlatformFilter={onUpdatePlatformFilter}
                           />
                         )}
                       </div>
@@ -326,38 +338,140 @@ const ChannelList = ({
   );
 };
 
-interface CategoryPickerProps {
+// Toggle one id within a filter set that uses the "empty = all selected"
+// convention: an empty array means no filter (everything passes). Selecting a
+// subset narrows it; re-selecting every option collapses back to empty.
+function toggleFilterId(currentIds: string[], allIds: string[], id: string): string[] {
+  let newIds: string[];
+  if (currentIds.length === 0) {
+    newIds = allIds.filter(x => x !== id);
+  } else if (currentIds.includes(id)) {
+    newIds = currentIds.filter(x => x !== id);
+  } else {
+    newIds = [...currentIds, id];
+  }
+  if (newIds.length >= allIds.length) {
+    newIds = [];
+  }
+  return newIds;
+}
+
+interface FilterPickerProps {
   game: Game;
   channelId: string;
   categoryData: GameCategory[] | undefined;
+  variableData: SubcategoryVariable[] | undefined;
+  platformData: GamePlatform[] | undefined;
   isFetching: boolean;
   onUpdateCategoryFilter: (channelId: string, gameId: string, categoryIds: string[]) => void;
+  onUpdateValueFilters: (channelId: string, gameId: string, valueFilters: Record<string, string[]>) => void;
+  onUpdatePlatformFilter: (channelId: string, gameId: string, platformIds: string[]) => void;
 }
 
-const CategoryPicker = ({
+const FilterPicker = ({
   game,
   channelId,
   categoryData,
+  variableData,
+  platformData,
   isFetching,
   onUpdateCategoryFilter,
-}: CategoryPickerProps) => {
+  onUpdateValueFilters,
+  onUpdatePlatformFilter,
+}: FilterPickerProps) => {
+  const currentCategoryIds = game.categoryIds || [];
+  const currentValueFilters = game.valueFilters || {};
+  const currentPlatformIds = game.platformIds || [];
+
+  const allCategoryIds = (categoryData || []).map(c => c.id);
+  const allPlatformIds = (platformData || []).map(p => p.id);
+
+  // Subcategory variables are bound to a category (categoryId) or game-wide
+  // (null). We only surface a category's variables once the user has narrowed
+  // to that category — otherwise an extension game (e.g. GoW Category
+  // Extensions, ~18 vars across 8 sub-games) shows a wall of groups, and
+  // selecting values across two mutually-exclusive categories would AND to
+  // zero matches. A single-category game has no ambiguity, so show all.
+  const scopedCategoryIds = (catIds: string[]) =>
+    catIds.length > 0 ? catIds : (allCategoryIds.length === 1 ? allCategoryIds : []);
+  const activeCategoryIds = scopedCategoryIds(currentCategoryIds);
+  const isVariableInScope = (v: SubcategoryVariable) =>
+    v.categoryId === null || activeCategoryIds.includes(v.categoryId);
+  const visibleVariables = (variableData || []).filter(isVariableInScope);
+
+  // Same-named variables (e.g. God of War 2018's two per-category "Difficulty"
+  // variables) get their category name appended so they're distinguishable.
+  const categoryNameById = new Map((categoryData || []).map(c => [c.id, c.name]));
+  const nameCounts = (variableData || []).reduce(
+    (m, v) => m.set(v.name, (m.get(v.name) || 0) + 1),
+    new Map<string, number>(),
+  );
+  const labelForVariable = (v: SubcategoryVariable) => {
+    if ((nameCounts.get(v.name) || 0) > 1 && v.categoryId) {
+      const catName = categoryNameById.get(v.categoryId);
+      if (catName) return `${v.name} (${catName})`;
+    }
+    return v.name;
+  };
+
+  // Drop subcategory constraints for variables no longer in scope, so a hidden
+  // per-category constraint can't silently exclude every run after the user
+  // switches or broadens the category selection.
+  const pruneValueFilters = (valueFilters: Record<string, string[]>, active: string[]) => {
+    const variableById = new Map((variableData || []).map(v => [v.id, v]));
+    const next: Record<string, string[]> = {};
+    for (const [variableId, values] of Object.entries(valueFilters)) {
+      const variable = variableById.get(variableId);
+      // Keep game-wide variables, in-scope variables, and unknown ids (avoid
+      // dropping data when variableData hasn't fully loaded).
+      if (!variable || variable.categoryId === null || active.includes(variable.categoryId)) {
+        next[variableId] = values;
+      }
+    }
+    return next;
+  };
+
   const handleCategoryToggle = (catId: string) => {
     if (!categoryData) return;
-    const currentIds = game.categoryIds || [];
-    const isSelected = currentIds.length === 0 || currentIds.includes(catId);
-    let newIds: string[];
-
-    if (currentIds.length === 0) {
-      newIds = categoryData.map(c => c.id).filter(id => id !== catId);
-    } else if (isSelected) {
-      newIds = currentIds.filter(id => id !== catId);
+    const nextCategoryIds = toggleFilterId(currentCategoryIds, allCategoryIds, catId);
+    onUpdateCategoryFilter(channelId, game.id, nextCategoryIds);
+    // Re-scope subcategory constraints to the new category selection.
+    const pruned = pruneValueFilters(currentValueFilters, scopedCategoryIds(nextCategoryIds));
+    if (Object.keys(pruned).length !== Object.keys(currentValueFilters).length) {
+      onUpdateValueFilters(channelId, game.id, pruned);
+    }
+  };
+  // Subcategory values toggle within their own variable: each variable keeps
+  // its own selected set, with "empty = all of that variable" collapsing to
+  // the variable being dropped from the map (unconstrained).
+  const handleValueToggle = (variableId: string, valueId: string) => {
+    const variable = (variableData || []).find(v => v.id === variableId);
+    const variableValueIds = variable ? variable.values.map(val => val.id) : [];
+    const nextForVariable = toggleFilterId(currentValueFilters[variableId] || [], variableValueIds, valueId);
+    const next = { ...currentValueFilters };
+    if (nextForVariable.length === 0) {
+      delete next[variableId];
     } else {
-      newIds = [...currentIds, catId];
+      next[variableId] = nextForVariable;
     }
-    if (newIds.length >= categoryData.length) {
-      newIds = [];
-    }
-    onUpdateCategoryFilter(channelId, game.id, newIds);
+    onUpdateValueFilters(channelId, game.id, next);
+  };
+  const handlePlatformToggle = (platformId: string) => {
+    onUpdatePlatformFilter(channelId, game.id, toggleFilterId(currentPlatformIds, allPlatformIds, platformId));
+  };
+
+  // Per-category variables exist but are hidden until a category is picked.
+  const hasHiddenCategoryVariables =
+    activeCategoryIds.length === 0 && (variableData || []).some(v => v.categoryId !== null);
+
+  const hasAnyFilter =
+    currentCategoryIds.length > 0 ||
+    Object.keys(currentValueFilters).length > 0 ||
+    currentPlatformIds.length > 0;
+  const clearAllFilters = () => {
+    if (currentCategoryIds.length > 0) onUpdateCategoryFilter(channelId, game.id, []);
+    if (Object.keys(currentValueFilters).length > 0) onUpdateValueFilters(channelId, game.id, {});
+    if (currentPlatformIds.length > 0) onUpdatePlatformFilter(channelId, game.id, []);
   };
 
   return (
@@ -365,69 +479,92 @@ const CategoryPicker = ({
       {isFetching ? (
         <div className="flex items-center space-x-2 text-gray-400 text-sm">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Loading categories from speedrun.com...</span>
+          <span>Loading filters from speedrun.com...</span>
         </div>
-      ) : categoryData ? (
+      ) : (categoryData || variableData || platformData) ? (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-400 font-medium">Filter by category</span>
-            {(game.categoryIds || []).length > 0 && (
+            <span className="text-xs text-gray-400 font-medium">Filter notifications</span>
+            {hasAnyFilter && (
               <button
                 className="text-xs text-discord-blurple hover:underline"
-                onClick={() => onUpdateCategoryFilter(channelId, game.id, [])}
+                onClick={clearAllFilters}
               >
-                Clear filter
+                Clear filters
               </button>
             )}
           </div>
-          <CategoryGroup
+
+          <OptionGroup
             label="Full Game"
-            categories={categoryData.filter(c => c.type === "per-game")}
-            currentIds={game.categoryIds || []}
-            allCategories={categoryData}
+            options={(categoryData || []).filter(c => c.type === "per-game").map(c => ({ id: c.id, label: c.name }))}
+            currentIds={currentCategoryIds}
             onToggle={handleCategoryToggle}
           />
-          <CategoryGroup
+          <OptionGroup
             label="Individual Level"
-            categories={categoryData.filter(c => c.type === "per-level")}
-            currentIds={game.categoryIds || []}
-            allCategories={categoryData}
+            options={(categoryData || []).filter(c => c.type === "per-level").map(c => ({ id: c.id, label: c.name }))}
+            currentIds={currentCategoryIds}
             onToggle={handleCategoryToggle}
+          />
+
+          {visibleVariables.map(variable => (
+            <OptionGroup
+              key={variable.id}
+              label={labelForVariable(variable)}
+              options={variable.values.map(val => ({ id: val.id, label: val.label }))}
+              currentIds={currentValueFilters[variable.id] || []}
+              onToggle={(valueId) => handleValueToggle(variable.id, valueId)}
+            />
+          ))}
+
+          {hasHiddenCategoryVariables && (
+            <p className="mb-2 text-xs text-gray-500 italic">
+              Pick a category above to filter its subcategories.
+            </p>
+          )}
+
+          <OptionGroup
+            label="Platform"
+            options={(platformData || []).map(p => ({ id: p.id, label: p.name }))}
+            currentIds={currentPlatformIds}
+            onToggle={handlePlatformToggle}
           />
         </div>
       ) : (
-        <span className="text-sm text-gray-400">Failed to load categories</span>
+        <span className="text-sm text-gray-400">Failed to load filters</span>
       )}
     </div>
   );
 };
 
-interface CategoryGroupProps {
+interface OptionGroupProps {
   label: string;
-  categories: GameCategory[];
+  options: { id: string; label: string }[];
   currentIds: string[];
-  allCategories: GameCategory[];
-  onToggle: (catId: string) => void;
+  onToggle: (id: string) => void;
 }
 
-const CategoryGroup = ({ label, categories, currentIds, onToggle }: CategoryGroupProps) => {
-  if (categories.length === 0) return null;
+// A labelled checkbox group. Follows the "empty currentIds = all checked"
+// convention shared by every filter dimension.
+const OptionGroup = ({ label, options, currentIds, onToggle }: OptionGroupProps) => {
+  if (options.length === 0) return null;
 
   return (
     <div className="mb-2">
       <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>
       <div className="mt-1 space-y-1">
-        {categories.map(cat => {
-          const isSelected = currentIds.length === 0 || currentIds.includes(cat.id);
+        {options.map(option => {
+          const isSelected = currentIds.length === 0 || currentIds.includes(option.id);
           return (
-            <label key={cat.id} className="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer py-0.5">
+            <label key={option.id} className="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer py-0.5">
               <input
                 type="checkbox"
                 checked={isSelected}
-                onChange={() => onToggle(cat.id)}
+                onChange={() => onToggle(option.id)}
                 className="rounded border-gray-600 bg-discord-dark text-discord-blurple focus:ring-discord-blurple"
               />
-              <span>{cat.name}</span>
+              <span>{option.label}</span>
             </label>
           );
         })}

@@ -17,7 +17,7 @@ import SrcLinkTab from "@/components/dashboard/SrcLinkTab";
 import api from "@/lib/api";
 import { isTokenValid, logout } from "@/lib/auth";
 import { useGameSettings } from "@/hooks/useGameSettings";
-import type { DiscordGuild, Guilds, DiscordChannel, Game, GameCategory, GuildChannelsResponse } from "@/types/dashboard";
+import type { DiscordGuild, Guilds, DiscordChannel, Game, GameCategory, SubcategoryVariable, GamePlatform, GuildChannelsResponse } from "@/types/dashboard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -49,6 +49,8 @@ const Dashboard = () => {
   const [isFetchingChannels, setIsFetchingChannels] = useState(false);
   const [channelFetchError, setChannelFetchError] = useState(false);
   const [categoryData, setCategoryData] = useState<Record<string, GameCategory[]>>({});
+  const [variableData, setVariableData] = useState<Record<string, SubcategoryVariable[]>>({});
+  const [platformData, setPlatformData] = useState<Record<string, GamePlatform[]>>({});
   const [expandedCategoryGame, setExpandedCategoryGame] = useState<string | null>(null);
   const [isFetchingCategories, setIsFetchingCategories] = useState<string | null>(null);
   const [flagsEnabled, setFlagsEnabled] = useState<boolean>(true);
@@ -60,6 +62,8 @@ const Dashboard = () => {
   const {
     handleUpdateNotificationSettings,
     handleUpdateCategoryFilter,
+    handleUpdateValueFilters,
+    handleUpdatePlatformFilter,
     cleanup: cleanupGameSettings,
   } = useGameSettings(selectedGuildIdRef, setChannels, channels);
 
@@ -238,16 +242,36 @@ const Dashboard = () => {
       });
   };
 
-  const fetchCategories = async (gameId: string) => {
-    if (categoryData[gameId]) return;
+  // Lazily fetch the three filter dimensions (categories, subcategory
+  // variables, platforms) for a game when its filter panel is opened. Each
+  // fetch is independent and cached, so a game with no variables/platforms
+  // still shows categories, and one failing endpoint doesn't block the others.
+  const fetchFilterData = async (gameId: string) => {
+    // All three dimensions cached → nothing to fetch, skip the loading flash.
+    if (categoryData[gameId] && variableData[gameId] && platformData[gameId]) return;
     setIsFetchingCategories(gameId);
     try {
-      const response = await api.get(`/api/games/${gameId}/categories`);
-      setCategoryData(prev => ({ ...prev, [gameId]: response.data.categories }));
-    } catch (error) {
-      console.error("Error fetching categories:", error);
+      await Promise.all([
+        (async () => {
+          if (categoryData[gameId]) return;
+          const res = await api.get(`/api/games/${gameId}/categories`);
+          setCategoryData(prev => ({ ...prev, [gameId]: res.data.categories }));
+        })().catch(error => console.error("Error fetching categories:", error)),
+        (async () => {
+          if (variableData[gameId]) return;
+          const res = await api.get(`/api/games/${gameId}/variables`);
+          setVariableData(prev => ({ ...prev, [gameId]: res.data.variables }));
+        })().catch(error => console.error("Error fetching variables:", error)),
+        (async () => {
+          if (platformData[gameId]) return;
+          const res = await api.get(`/api/games/${gameId}/platforms`);
+          setPlatformData(prev => ({ ...prev, [gameId]: res.data.platforms }));
+        })().catch(error => console.error("Error fetching platforms:", error)),
+      ]);
     } finally {
-      setIsFetchingCategories(null);
+      // Only clear if this game is still the one loading — a picker opened for
+      // a different game afterwards must not have its spinner cleared here.
+      setIsFetchingCategories(prev => (prev === gameId ? null : prev));
     }
   };
 
@@ -257,16 +281,23 @@ const Dashboard = () => {
       setExpandedCategoryGame(null);
     } else {
       setExpandedCategoryGame(key);
-      fetchCategories(gameId);
+      fetchFilterData(gameId);
     }
   };
 
-  const getCategoryLabel = (channelId: string, gameId: string) => {
+  const getFilterLabel = (channelId: string, gameId: string) => {
     const channel = channels.find(c => c.id === channelId);
     const game = channel?.games?.find(g => g.id === gameId);
-    const ids = game?.categoryIds || [];
-    if (ids.length === 0) return "All";
-    return `${ids.length}`;
+    const valueCount = Object.values(game?.valueFilters || {}).reduce(
+      (n, ids) => n + ids.length,
+      0,
+    );
+    const total =
+      (game?.categoryIds?.length || 0) +
+      valueCount +
+      (game?.platformIds?.length || 0);
+    if (total === 0) return "All";
+    return `${total}`;
   };
 
   // Handle game search with debounce
@@ -362,6 +393,8 @@ const Dashboard = () => {
                   expandedCategoryGame={expandedCategoryGame}
                   isFetchingCategories={isFetchingCategories}
                   categoryData={categoryData}
+                  variableData={variableData}
+                  platformData={platformData}
                   onBackToGuilds={handleBackToGuilds}
                   onSetActiveChannelId={setActiveChannelId}
                   onSearchTermChange={setGameSearchTerm}
@@ -370,8 +403,10 @@ const Dashboard = () => {
                   onUpdateNotification={handleUpdateNotificationSettings}
                   onToggleCategoryPicker={handleToggleCategoryPicker}
                   onUpdateCategoryFilter={handleUpdateCategoryFilter}
+                  onUpdateValueFilters={handleUpdateValueFilters}
+                  onUpdatePlatformFilter={handleUpdatePlatformFilter}
                   getCurrentNotificationSetting={getCurrentNotificationSetting}
-                  getCategoryLabel={getCategoryLabel}
+                  getFilterLabel={getFilterLabel}
                   flagsEnabled={flagsEnabled}
                   onToggleFlags={handleToggleFlags}
                   isUpdatingFlags={isUpdatingFlags}

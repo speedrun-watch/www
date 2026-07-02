@@ -31,6 +31,10 @@ export interface Game {
   releaseDate: string;
   notificationType?: string;
   categoryIds?: string[];
+  // Subcategory filter grouped by variable: { variableId: [valueId, ...] }.
+  // AND across variables, OR within a variable.
+  valueFilters?: Record<string, string[]>;
+  platformIds?: string[];
   notificationCount?: number;
   lastNotifiedAt?: string;
   ruleset: {
@@ -85,4 +89,24 @@ export interface GameCategory {
   id: string;
   name: string;
   type: string;
+}
+
+export interface SubcategoryValue {
+  id: string;
+  label: string;
+}
+
+// A speedrun.com subcategory variable (e.g. "Difficulty") and its selectable
+// values (e.g. "Platinum", "Cronos% Easy"). Only is-subcategory variables are
+// surfaced as notification filters.
+export interface SubcategoryVariable {
+  id: string;
+  name: string;
+  categoryId: string | null;
+  values: SubcategoryValue[];
+}
+
+export interface GamePlatform {
+  id: string;
+  name: string;
 }
