@@ -62,7 +62,8 @@ const Dashboard = () => {
   const {
     handleUpdateNotificationSettings,
     handleUpdateCategoryFilter,
-    handleUpdateValueFilters,
+    handleUpdateCategoryValueFilters,
+    handleUpdateGlobalValueFilters,
     handleUpdatePlatformFilter,
     cleanup: cleanupGameSettings,
   } = useGameSettings(selectedGuildIdRef, setChannels, channels);
@@ -288,13 +289,21 @@ const Dashboard = () => {
   const getFilterLabel = (channelId: string, gameId: string) => {
     const channel = channels.find(c => c.id === channelId);
     const game = channel?.games?.find(g => g.id === gameId);
-    const valueCount = Object.values(game?.valueFilters || {}).reduce(
+    // Count constraint values across all four axes: selected categories,
+    // per-branch subcategory values, global subcategory values, and platforms.
+    const globalCount = Object.values(game?.globalValueFilters || {}).reduce(
       (n, ids) => n + ids.length,
+      0,
+    );
+    const perBranchCount = Object.values(game?.categoryValueFilters || {}).reduce(
+      (n, variables) =>
+        n + Object.values(variables).reduce((m, ids) => m + ids.length, 0),
       0,
     );
     const total =
       (game?.categoryIds?.length || 0) +
-      valueCount +
+      perBranchCount +
+      globalCount +
       (game?.platformIds?.length || 0);
     if (total === 0) return "All";
     return `${total}`;
@@ -403,7 +412,8 @@ const Dashboard = () => {
                   onUpdateNotification={handleUpdateNotificationSettings}
                   onToggleCategoryPicker={handleToggleCategoryPicker}
                   onUpdateCategoryFilter={handleUpdateCategoryFilter}
-                  onUpdateValueFilters={handleUpdateValueFilters}
+                  onUpdateCategoryValueFilters={handleUpdateCategoryValueFilters}
+                  onUpdateGlobalValueFilters={handleUpdateGlobalValueFilters}
                   onUpdatePlatformFilter={handleUpdatePlatformFilter}
                   getCurrentNotificationSetting={getCurrentNotificationSetting}
                   getFilterLabel={getFilterLabel}

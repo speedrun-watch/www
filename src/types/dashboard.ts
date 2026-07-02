@@ -31,9 +31,13 @@ export interface Game {
   releaseDate: string;
   notificationType?: string;
   categoryIds?: string[];
-  // Subcategory filter grouped by variable: { variableId: [valueId, ...] }.
-  // AND across variables, OR within a variable.
-  valueFilters?: Record<string, string[]>;
+  // Per-branch subcategory filter: { categoryId: { variableId: [valueId, ...] } }.
+  // Enforced only against a run's own category → selecting multiple branches
+  // is OR across them; AND across variables, OR within a variable.
+  categoryValueFilters?: Record<string, Record<string, string[]>>;
+  // Global subcategory filter for variables that apply to every category:
+  // { variableId: [valueId, ...] }.
+  globalValueFilters?: Record<string, string[]>;
   platformIds?: string[];
   notificationCount?: number;
   lastNotifiedAt?: string;

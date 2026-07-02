@@ -6,14 +6,19 @@ import type { DiscordChannel } from "@/types/dashboard";
 interface GameSettingsValues {
   notificationType: string;
   categoryIds: string[];
-  // Subcategory selections grouped by variable: { variableId: [valueId] }.
-  valueFilters: Record<string, string[]>;
+  // Per-branch subcategory selections: { categoryId: { variableId: [valueId] } }.
+  // Constraints are enforced only against a run's own category, so selecting
+  // several branches behaves as OR across them.
+  categoryValueFilters: Record<string, Record<string, string[]>>;
+  // Global (all-categories) subcategory selections: { variableId: [valueId] }.
+  globalValueFilters: Record<string, string[]>;
   platformIds: string[];
 }
 
-// The two flat String-Set filters share one generic updater; valueFilters is
-// a map and has its own.
+// The two flat String-Set filters (categories, platforms) share one array
+// updater; the two subcategory maps share a separate map updater.
 type FilterField = "categoryIds" | "platformIds";
+type MapField = "categoryValueFilters" | "globalValueFilters";
 
 export function useGameSettings(
   selectedGuildIdRef: React.MutableRefObject<string | undefined>,
@@ -67,7 +72,8 @@ export function useGameSettings(
                             ...g,
                             notificationType: confirmed.notificationType,
                             categoryIds: confirmed.categoryIds,
-                            valueFilters: confirmed.valueFilters,
+                            categoryValueFilters: confirmed.categoryValueFilters,
+                            globalValueFilters: confirmed.globalValueFilters,
                             platformIds: confirmed.platformIds,
                           }
                         : g
@@ -102,7 +108,8 @@ export function useGameSettings(
       lastConfirmedRef.current[key] = {
         notificationType: game?.notificationType || 'any',
         categoryIds: game?.categoryIds || [],
-        valueFilters: game?.valueFilters || {},
+        categoryValueFilters: game?.categoryValueFilters || {},
+        globalValueFilters: game?.globalValueFilters || {},
         platformIds: game?.platformIds || [],
       };
     }
@@ -171,12 +178,14 @@ export function useGameSettings(
   const handleUpdatePlatformFilter = (channelId: string, gameId: string, newIds: string[]) =>
     updateFilterField(channelId, gameId, "platformIds", newIds);
 
-  // Subcategory filter is a { variableId: [valueId] } map, so it replaces the
-  // whole map rather than a single array field.
-  const handleUpdateValueFilters = (
+  // Shared updater for the two subcategory maps. Each replaces its whole map
+  // (categoryValueFilters is nested { categoryId: { variableId: [valueId] } };
+  // globalValueFilters is flat { variableId: [valueId] }).
+  const updateMapField = (
     channelId: string,
     gameId: string,
-    newValueFilters: Record<string, string[]>,
+    field: MapField,
+    newMap: Record<string, unknown>,
   ) => {
     const key = `${channelId}-${gameId}`;
     initConfirmedState(channelId, gameId);
@@ -188,7 +197,7 @@ export function useGameSettings(
             ...channel,
             games: channel.games.map(game =>
               game.id === gameId
-                ? { ...game, valueFilters: newValueFilters }
+                ? { ...game, [field]: newMap }
                 : game
             )
           };
@@ -198,9 +207,21 @@ export function useGameSettings(
     );
 
     const existing = pendingValuesRef.current[key] || lastConfirmedRef.current[key];
-    pendingValuesRef.current[key] = { ...existing, valueFilters: newValueFilters };
+    pendingValuesRef.current[key] = { ...existing, [field]: newMap };
     scheduleGameSettingsSave(channelId, gameId);
   };
+
+  const handleUpdateCategoryValueFilters = (
+    channelId: string,
+    gameId: string,
+    newMap: Record<string, Record<string, string[]>>,
+  ) => updateMapField(channelId, gameId, "categoryValueFilters", newMap);
+
+  const handleUpdateGlobalValueFilters = (
+    channelId: string,
+    gameId: string,
+    newMap: Record<string, string[]>,
+  ) => updateMapField(channelId, gameId, "globalValueFilters", newMap);
 
   const cleanup = useCallback(() => {
     Object.values(saveTimersRef.current).forEach(clearTimeout);
@@ -209,7 +230,8 @@ export function useGameSettings(
   return {
     handleUpdateNotificationSettings,
     handleUpdateCategoryFilter,
-    handleUpdateValueFilters,
+    handleUpdateCategoryValueFilters,
+    handleUpdateGlobalValueFilters,
     handleUpdatePlatformFilter,
     cleanup,
   };
