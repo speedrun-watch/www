@@ -668,7 +668,11 @@ const FilterPicker = ({
           {isMultiBranch && (
             <FilterSection
               title="Categories"
-              hint="Tick the categories to notify about — none ticked means all of them. Expand a category to also filter its subcategories."
+              hint={
+                currentCategoryIds.length === 0
+                  ? "All categories notify by default. Tick some to narrow to just those. Expand a category to also filter its subcategories."
+                  : "Only the ticked categories notify. Expand a category to also filter its subcategories."
+              }
             >
               {perGameCategories.map(renderBranchRow)}
               {perLevelCategories.length > 0 && (
