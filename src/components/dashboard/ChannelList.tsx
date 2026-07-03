@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -351,6 +351,79 @@ function toggleId(currentIds: string[], id: string): string[] {
     : [...currentIds, id];
 }
 
+// --- Live "how many runs match this filter?" sample -------------------------
+// A recent verified-run sample fetched straight from speedrun.com (public API,
+// CORS-open) lets us tell the user when their selections match nothing — e.g.
+// "GoW Ragnarök on PSP", an impossible combination the AND-ed axes allow.
+
+interface SrcRunSample {
+  category: string | null;
+  values: Record<string, string>;
+  platform: string | null;
+}
+
+const runSampleCache = new Map<string, SrcRunSample[]>();
+const RUN_SAMPLE_SIZE = 200;
+
+async function fetchRunSample(gameId: string): Promise<SrcRunSample[]> {
+  const cached = runSampleCache.get(gameId);
+  if (cached) return cached;
+  const res = await fetch(
+    `https://www.speedrun.com/api/v1/runs?game=${gameId}&status=verified&orderby=verify-date&direction=desc&max=${RUN_SAMPLE_SIZE}`,
+  );
+  if (!res.ok) throw new Error(`runs fetch failed: ${res.status}`);
+  const json = await res.json();
+  const runs: SrcRunSample[] = (json.data || []).map((r: {
+    category?: string | null;
+    values?: Record<string, string>;
+    system?: { platform?: string | null };
+  }) => ({
+    category: r.category ?? null,
+    values: r.values || {},
+    platform: r.system?.platform ?? null,
+  }));
+  runSampleCache.set(gameId, runs);
+  return runs;
+}
+
+// AND across constrained variables; a run must carry an allowed value for each.
+// Mirrors the bot's matchesVariableConstraints so the count is honest.
+function runMatchesVariables(
+  runValues: Record<string, string>,
+  constraints: Record<string, string[]>,
+): boolean {
+  for (const [variableId, allowed] of Object.entries(constraints || {})) {
+    if (!allowed || allowed.length === 0) continue;
+    const value = runValues?.[variableId];
+    if (!value || !allowed.includes(value)) return false;
+  }
+  return true;
+}
+
+interface RunFilter {
+  categoryIds: string[];
+  categoryValueFilters: Record<string, Record<string, string[]>>;
+  globalValueFilters: Record<string, string[]>;
+  platformIds: string[];
+}
+
+// Mirror of the bot's fan-out gates (category → per-branch → global → platform),
+// so the preview count matches what would actually be posted.
+function runMatchesFilter(run: SrcRunSample, f: RunFilter): boolean {
+  if (f.categoryIds.length > 0 && (!run.category || !f.categoryIds.includes(run.category))) {
+    return false;
+  }
+  if (run.category) {
+    const branch = f.categoryValueFilters[run.category];
+    if (branch && !runMatchesVariables(run.values, branch)) return false;
+  }
+  if (!runMatchesVariables(run.values, f.globalValueFilters)) return false;
+  if (f.platformIds.length > 0 && (!run.platform || !f.platformIds.includes(run.platform))) {
+    return false;
+  }
+  return true;
+}
+
 interface FilterPickerProps {
   game: Game;
   channelId: string;
@@ -417,6 +490,17 @@ const FilterPicker = ({
       return next;
     });
 
+  // Recent verified-run sample, used to preview how many runs the current
+  // selections would actually match (catches impossible combinations).
+  const [runSample, setRunSample] = useState<SrcRunSample[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchRunSample(game.id)
+      .then(runs => { if (alive) setRunSample(runs); })
+      .catch(() => { if (alive) setRunSample(null); });
+    return () => { alive = false; };
+  }, [game.id]);
+
   const branchConstraintCount = (catId: string) =>
     Object.values(currentCategoryValueFilters[catId] || {}).reduce((n, ids) => n + ids.length, 0);
 
@@ -477,6 +561,17 @@ const FilterPicker = ({
     if (currentPlatformIds.length > 0) onUpdatePlatformFilter(channelId, game.id, []);
   };
 
+  const matchCount = runSample
+    ? runSample.filter(run =>
+        runMatchesFilter(run, {
+          categoryIds: currentCategoryIds,
+          categoryValueFilters: currentCategoryValueFilters,
+          globalValueFilters: currentGlobalValueFilters,
+          platformIds: currentPlatformIds,
+        }),
+      ).length
+    : null;
+
   const renderBranchVariables = (catId: string, catVars: SubcategoryVariable[]) => (
     <div className="ml-6 pl-3 border-l border-gray-700 space-y-3 mt-1 mb-2">
       {catVars.map(v => (
@@ -509,7 +604,7 @@ const FilterPicker = ({
             <span className="truncate">{cat.name}</span>
           </label>
           {count > 0 && (
-            <span className="text-xs text-discord-blurple whitespace-nowrap">{count} filtered</span>
+            <span className="text-xs text-discord-blurple whitespace-nowrap">{count} selected</span>
           )}
           {catVars.length > 0 && (
             <button
@@ -552,11 +647,28 @@ const FilterPicker = ({
             )}
           </div>
 
+          {/* Live preview: how many recent verified runs this filter matches. */}
+          {hasAnyFilter && matchCount !== null && runSample !== null && (
+            matchCount === 0 ? (
+              <div className="flex items-start gap-1.5 text-xs text-amber-400 bg-amber-400/10 rounded px-2 py-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>
+                  None of the last {runSample.length} verified runs match this filter — double-check the
+                  combination (e.g. a category paired with a platform it never ran on).
+                </span>
+              </div>
+            ) : (
+              <div className="text-xs text-gray-500">
+                {matchCount} of the last {runSample.length} verified runs match this filter.
+              </div>
+            )
+          )}
+
           {/* Categories (branches) — only when there's more than one to choose. */}
           {isMultiBranch && (
             <FilterSection
               title="Categories"
-              hint="Choose which to notify about — none selected means all. Expand a category to filter its subcategories."
+              hint="Tick the categories to notify about — none ticked means all of them. Expand a category to also filter its subcategories."
             >
               {perGameCategories.map(renderBranchRow)}
               {perLevelCategories.length > 0 && (
