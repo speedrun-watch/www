@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { AlertTriangle, Loader2, ExternalLink, Plus, Sparkles } from "lucide-react";
 import api from "@/lib/api";
+import { withRetry } from "@/lib/retry";
 import { getDiscordBotInviteUrl } from "@/lib/discord";
 
 interface GuildRole {
@@ -44,48 +45,65 @@ const RunnerRoleCard = ({ selectedGuildId }: RunnerRoleCardProps) => {
   const [enabled, setEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [rolesError, setRolesError] = useState(false);
+  const [rolesErrorStatus, setRolesErrorStatus] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  // Bumped each load; a slow (retried) request whose token is stale on return
+  // is discarded, so switching guilds mid-fetch can't overwrite newer state.
+  const reqIdRef = useRef(0);
 
-  useEffect(() => {
+  // Load the guild setting + assignable roles, retrying transient rate-limits
+  // (429/503) so a brief Discord throttle self-heals. Roles and settings are
+  // fetched independently: a roles failure surfaces a retryable error (rather
+  // than silently showing "no roles"), while settings still load.
+  const load = useCallback(async () => {
     if (!selectedGuildId) return;
-    let cancelled = false;
-    const load = async () => {
-      setIsLoading(true);
-      setRolesError(false);
-      try {
-        const [settings, rolesResp] = await Promise.all([
+    const reqId = ++reqIdRef.current;
+    const isStale = () => reqId !== reqIdRef.current;
+    setIsLoading(true);
+    setRolesError(false);
+    setRolesErrorStatus(null);
+    try {
+      const [settings, rolesResp] = await Promise.all([
+        withRetry(() =>
           api.get<{
             runnerRoleId: string | null;
             runnerRoleErrorAt: string | null;
           }>(`/api/guilds/${selectedGuildId}/settings`),
-          api
-            .get<{ roles: GuildRole[]; botRolePosition: number | null }>(
-              `/api/guilds/${selectedGuildId}/roles`,
-            )
-            .catch(() => null),
-        ]);
-        if (cancelled) return;
-        setRunnerRoleId(settings.data.runnerRoleId);
-        setEnabled(!!settings.data.runnerRoleId);
-        setRunnerRoleErrorAt(settings.data.runnerRoleErrorAt);
-        if (rolesResp) {
-          setRoles(rolesResp.data.roles || []);
-          setBotRolePosition(rolesResp.data.botRolePosition);
-        } else {
-          setRolesError(true);
-        }
-      } catch (error) {
-        console.error("Error loading runner-role settings:", error);
-      } finally {
-        if (!cancelled) setIsLoading(false);
+        ),
+        withRetry(() =>
+          api.get<{ roles: GuildRole[]; botRolePosition: number | null }>(
+            `/api/guilds/${selectedGuildId}/roles`,
+          ),
+        ).catch((error) => {
+          if (!isStale()) {
+            setRolesErrorStatus(
+              (error as { response?: { status?: number } })?.response?.status ?? null,
+            );
+          }
+          return null;
+        }),
+      ]);
+      if (isStale()) return;
+      setRunnerRoleId(settings.data.runnerRoleId);
+      setEnabled(!!settings.data.runnerRoleId);
+      setRunnerRoleErrorAt(settings.data.runnerRoleErrorAt);
+      if (rolesResp) {
+        setRoles(rolesResp.data.roles || []);
+        setBotRolePosition(rolesResp.data.botRolePosition);
+      } else {
+        setRolesError(true);
       }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
+    } catch (error) {
+      console.error("Error loading runner-role settings:", error);
+    } finally {
+      if (!isStale()) setIsLoading(false);
+    }
   }, [selectedGuildId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const save = async (nextRoleId: string | null) => {
     const prevRoleId = runnerRoleId;
@@ -173,10 +191,16 @@ const RunnerRoleCard = ({ selectedGuildId }: RunnerRoleCardProps) => {
           ) : rolesError ? (
             <div className="flex items-start gap-2 text-sm text-yellow-500">
               <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>
-                Couldn’t load this server’s roles. Make sure the bot is still in
-                the server.
-              </span>
+              <div className="flex flex-col items-start gap-2">
+                <span>
+                  {rolesErrorStatus === 503 || rolesErrorStatus === 429
+                    ? "Discord is briefly rate-limiting us. This usually clears in a moment."
+                    : "Couldn’t load this server’s roles. Make sure the bot is still in the server."}
+                </span>
+                <Button variant="outline" size="sm" onClick={load} disabled={isLoading}>
+                  Try again
+                </Button>
+              </div>
             </div>
           ) : (
             <>

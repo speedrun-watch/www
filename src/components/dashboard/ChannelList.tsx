@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
+import ChannelListStatus from "@/components/dashboard/ChannelListStatus";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Twemoji } from "@/lib/twemoji";
@@ -47,6 +48,8 @@ interface ChannelListProps {
   selectedGuildId: string;
   isFetchingChannels: boolean;
   channelFetchError: boolean;
+  channelFetchStatus: number | null;
+  onRetryChannels: () => void;
   activeChannelId: string | null;
   gameSearchTerm: string;
   searchResults: Game[];
@@ -85,6 +88,8 @@ const ChannelList = ({
   selectedGuildId,
   isFetchingChannels,
   channelFetchError,
+  channelFetchStatus,
+  onRetryChannels,
   activeChannelId,
   gameSearchTerm,
   searchResults,
@@ -164,21 +169,12 @@ const ChannelList = ({
 
       <RunnerRoleCard selectedGuildId={selectedGuildId} />
 
-      {isFetchingChannels ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 text-discord-blurple mx-auto mb-3 animate-spin" />
-            <p className="text-gray-400">Loading channels from Discord...</p>
-          </div>
-        </div>
-      ) : channelFetchError ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="text-center">
-            <AlertTriangle className="w-8 h-8 text-yellow-500 mx-auto mb-3" />
-            <p className="text-gray-300 font-medium">Couldn't fetch channels</p>
-            <p className="text-gray-400 text-sm mt-1">Is the bot still installed in this server?</p>
-          </div>
-        </div>
+      {isFetchingChannels || channelFetchError ? (
+        <ChannelListStatus
+          isFetchingChannels={isFetchingChannels}
+          channelFetchStatus={channelFetchStatus}
+          onRetry={onRetryChannels}
+        />
       ) : (
         <div className="space-y-4">
           {channels

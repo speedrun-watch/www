@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import ChannelList from "@/components/dashboard/ChannelList";
 import AddBotTab from "@/components/dashboard/AddBotTab";
 import SrcLinkTab from "@/components/dashboard/SrcLinkTab";
 import api from "@/lib/api";
+import { withRetry } from "@/lib/retry";
 import { isTokenValid, logout } from "@/lib/auth";
 import { useGameSettings } from "@/hooks/useGameSettings";
 import type { DiscordGuild, Guilds, DiscordChannel, Game, GameCategory, SubcategoryVariable, GamePlatform, GuildChannelsResponse } from "@/types/dashboard";
@@ -49,6 +50,10 @@ const Dashboard = () => {
   const [isFetchingGuilds, setIsFetchingGuilds] = useState(false);
   const [isFetchingChannels, setIsFetchingChannels] = useState(false);
   const [channelFetchError, setChannelFetchError] = useState(false);
+  // HTTP status of the last failed channels fetch, so the UI can explain the
+  // real cause (503 rate-limit vs 403 permission vs bot removed) instead of
+  // always blaming a missing bot. null when there is no error.
+  const [channelFetchStatus, setChannelFetchStatus] = useState<number | null>(null);
   const [categoryData, setCategoryData] = useState<Record<string, GameCategory[]>>({});
   const [variableData, setVariableData] = useState<Record<string, SubcategoryVariable[]>>({});
   const [platformData, setPlatformData] = useState<Record<string, GamePlatform[]>>({});
@@ -112,27 +117,40 @@ const Dashboard = () => {
     fetchGuilds();
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchGuildChannels = async () => {
-      if (!selectedGuildId) return;
-      setChannels([]);
-      setChannelFetchError(false);
-      setIsFetchingChannels(true);
-      try {
-        const response = await api.get<GuildChannelsResponse>(
-          `/api/guilds/${selectedGuildId}/channels`
-        );
-        setChannels(response.data.guildChannels);
-      } catch (error) {
-        console.error("Error fetching guild channels:", error);
-        setChannelFetchError(true);
-      } finally {
-        setIsFetchingChannels(false);
-      }
-    };
-
-    fetchGuildChannels();
+  // Fetch the guild's channels, retrying transient rate-limits (429/503) so a
+  // brief Discord throttle self-heals instead of forcing the user to reload.
+  const fetchGuildChannels = useCallback(async () => {
+    if (!selectedGuildId) return;
+    // Capture the guild this fetch is for. Retries can keep a request in flight
+    // for seconds, so if the user switches guilds meanwhile we must not let this
+    // (now stale) response overwrite the newer guild's channels.
+    const guildId = selectedGuildId;
+    const isStale = () => selectedGuildIdRef.current !== guildId;
+    setChannels([]);
+    setChannelFetchError(false);
+    setChannelFetchStatus(null);
+    setIsFetchingChannels(true);
+    try {
+      const response = await withRetry(() =>
+        api.get<GuildChannelsResponse>(`/api/guilds/${guildId}/channels`)
+      );
+      if (isStale()) return;
+      setChannels(response.data.guildChannels);
+    } catch (error) {
+      if (isStale()) return;
+      console.error("Error fetching guild channels:", error);
+      setChannelFetchStatus(
+        (error as { response?: { status?: number } })?.response?.status ?? null
+      );
+      setChannelFetchError(true);
+    } finally {
+      if (!isStale()) setIsFetchingChannels(false);
+    }
   }, [selectedGuildId]);
+
+  useEffect(() => {
+    fetchGuildChannels();
+  }, [fetchGuildChannels]);
 
   useEffect(() => {
     if (!selectedGuildId) return;
@@ -405,6 +423,8 @@ const Dashboard = () => {
                   selectedGuildId={selectedGuildId}
                   isFetchingChannels={isFetchingChannels}
                   channelFetchError={channelFetchError}
+                  channelFetchStatus={channelFetchStatus}
+                  onRetryChannels={fetchGuildChannels}
                   activeChannelId={activeChannelId}
                   gameSearchTerm={gameSearchTerm}
                   searchResults={searchResults}
