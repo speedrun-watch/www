@@ -60,6 +60,7 @@ const PrivacyPolicy = () => {
                                     <li>Your Discord User ID</li>
                                     <li>Your Discord username and discriminator</li>
                                     <li>Your Discord avatar (for display purposes in the dashboard)</li>
+                                    <li>When you first and last signed in to the dashboard, and how many times you have signed in</li>
                                 </ul>
 
                                 <h3 className="text-xl font-semibold text-white mb-2 mt-4">2.2 Discord Server Information</h3>
